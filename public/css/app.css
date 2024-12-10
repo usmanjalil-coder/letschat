@@ -1,0 +1,303 @@
+body {
+    background-color: #f8f9fa;
+    overflow: hidden; /* Prevents body scrolling */
+    height: 100vh; /* Full height of the viewport */
+}
+
+.chat-container {
+    display: flex;
+    height: 100%; /* Full height */
+}
+
+.conversation-list {
+    width: 300px;
+    border-right: 1px solid #ccc;
+    background: #edecec;
+    overflow-y: auto;
+    height: 85vh;
+}
+
+.conversation-item {
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.conversation-item:hover {
+    background-color: #f1f1f1;
+}
+
+.active-conversation {
+    background-color: #3f4257;
+    color: white;
+    border-left: 5px solid #007bff;
+}
+
+.timestamp {
+    font-size: 0.85em;
+    color: green;
+    /* font-weight: bold; */
+}
+
+.chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: #ffffff;
+  
+}
+
+.img-div i{
+    position: absolute;
+    color: red;
+    right: 0;
+    font-size: 20px;
+    cursor: pointer;
+    top: -4px;
+}
+
+.img-container{
+    background: #44475d;
+    border-radius: 19px 19px 0px 0px;
+}
+
+
+
+.messages {
+    flex-grow: 1;
+    overflow-y: auto; /* Allows scrolling */
+    padding: 10px;
+    background: #f8f9fa;
+    height: 70vh;
+}
+
+.starter-text{
+    position: absolute;
+    top: 50%;
+    right: 26%;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.messages::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background-color: #8ac0fa; /* Color of the scrollbar thumb */
+    border-radius: 5px; /* Slightly rounded corners */
+}
+
+.messages::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+    background-color: #6a9bc5; /* Darker color on hover */
+}
+
+.message-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    position: absolute;
+    bottom: 0;
+    width: -webkit-fill-available;
+    background: #3f4257;
+    color: white;
+}
+
+.message-input input {
+    flex-grow: 1;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    margin-right: 10px;
+    background: #f1f1f1;
+}
+
+.message-input button {
+    border-radius: 5px;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: fit-content;
+    padding-bottom: 18px !important;
+}
+
+.message.sent {
+    background-color: #f0f4f9;
+    margin-left: auto;
+}
+
+.message.received {
+    background-color: #3f4257;
+    color: white;
+    align-self: flex-start; 
+}
+
+.message .quote {
+    color: #007bff;
+    font-size: 0.9em;
+}
+
+.user-status {
+    font-size: 0.9em;
+    color: green;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.conversation-list::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+    background-color: #8ac0fa; /* Color of the scrollbar thumb */
+    border-radius: 5px; /* Slightly rounded corners */
+}
+
+.conversation-list::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+}
+
+.receiver_image_and_name{
+    position: absolute;
+    top: -20px;
+    width: 200px !important;
+    color: #3f4257;
+}
+.receiver_image_and_name small{
+    font-size: 10px !important;
+}
+
+.close-modal{
+    color: red;
+    text-align: right;
+    position: absolute;
+    right: -29px;
+    font-size: 43px;
+    top: -36px;
+    z-index: 1;
+    cursor: pointer;
+}
+.view_media_image{
+    cursor: pointer;
+}
+
+/* sekeleton */
+
+.skeleton-loader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.skeleton-loader .skeleton-message {
+    width: 60%;
+    height: 50px;
+    border-radius: 10px;
+    background-color: #e0e0e0;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-loader .sender {
+    margin-left: auto; /* Aligns it to the right for sender messages */
+    background-color: #cccccc;
+}
+
+.skeleton-loader .receiver {
+    margin-right: auto; /* Aligns it to the left for receiver messages */
+    background-color: #dddddd;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+/* audio record  */
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.controls button {
+    width: 120px;
+}
+
+.waveform {
+    width: 100%;
+    height: 150px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.2rem;
+}
+
+.playback {
+    width: 100%;
+    max-width: 300px;
+}
+
+.sender_message_time{
+    position: absolute;
+    font-size: 11px;
+    right: 6px;
+    width: 90px;
+    bottom: 2px;
+}
+
+
+.audio-recording-ui {
+    padding: 10px;
+    background-color: #d2d2d2;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.rcvr-data{
+    position: absolute;
+    left: 36%;
+    background: #3f4257;
+    color: white;
+    top: -39px;
+    min-width: 22%;
+    border-radius: 20px;
+    padding: 14px;
+    display: flex;
+}
+
+.rcvr-data p{
+    font-size: large;
+    margin-left: 10px;
+}
+
+.online_status{
+    height: 10px;
+    width: 10px;
+    background: green;
+    border-radius: 20px;
+    position: absolute;
+}
+
