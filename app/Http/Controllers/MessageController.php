@@ -7,13 +7,18 @@ use App\Events\IsTypingEvent;
 use App\Models\Message;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\NotificationTrait;
+use Exception;
 use Throwable;
 
 class MessageController extends Controller
 {
+    use NotificationTrait;
+
     public function send_message(Request $request){
 
         // dd($request->all());
@@ -121,6 +126,8 @@ class MessageController extends Controller
                 $time = Carbon::parse($receiver_lastseen)->timezone('Asia/Karachi');
     
                 $r['last_seen'] = $time->diffInMinutes() < 60 ? $time->diffForHumans() : $time->format('g:i A');
+            }else{
+                $r['last_seen']  = null;
             }
             // dd($r);
             $view = view('render.chating-box', compact('conversations','r'))->render();
@@ -143,5 +150,48 @@ class MessageController extends Controller
             'status' => 200, 
             'message' => 'Is typing event successfully fired'
         ]);
+    }
+
+    public function searchFriend(Request $request) : JsonResponse
+    {
+        try{
+            $searchValue = trim($request->search_value) !== '' ? $request->search_value :'';
+            $searchValue = '%'. $searchValue .'%';
+            $friends = User::where('name', 'LIKE', $searchValue)->where('id', '!=' , auth()->user()->id)->get();
+            $view = view('render.search_friend_list', compact('friends'))->render();
+            return response()->json([
+                'status' => 'success',
+                'view' => $view
+            ]);
+        }catch(\Exception $e){
+            dd($e);
+        }
+    }
+
+    public function sendFriendRequest(Request $request): JsonResponse
+    {
+        try {
+            $to_user_id = (int)$request->id;
+            if($to_user_id){
+                $this->post_notification([
+                    'to_user_id' => $to_user_id,
+                    'from_user_id' => authUserId(),
+                    'action' => 'friend_request',
+                    'message' => 'send you friend request'
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Friend request send successfully'
+                ]);
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => 'id require'
+            ]);
+        }catch(Exception $e){
+            dd($e);
+        }
+        
     }
 }

@@ -15,6 +15,8 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 // Route::group(['middleware' => 'is-admin'], function(){
     Route::post('/send-message', [MessageController::class,'send_message'])->name('send.message');
     Route::get('/fetch-message', [MessageController::class,'fetch_conversation'])->name('fetch.message');
+    Route::get('/search-friend',[MessageController::class, 'searchFriend'])->name('search.friend');
+    Route::get('/send-friend-request', [MessageController::class,'sendFriendRequest'])->name("send.friend.request");
 
     Route::post('/update-last-seen', function () {
         try{

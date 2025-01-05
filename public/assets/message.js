@@ -347,10 +347,82 @@ $(document).ready(function(){
                 }
             });
         }
+
     };
     
+    $('body').on('click', '#add_frnd_btn', () => {
+        searchAndGetAllFriends()
+        $('#addFriendModal').modal('show')
+    })
+
+    $('#addFriendModal .close').on('click', function(){
+        $('#addFriendModal').modal('hide')
+    })
+    var debounceTimeout; 
+    var searchInterval = 200;
+
+    function searchAndGetAllFriends(serachVal = null){
+        clearTimeout(debounceTimeout)
+        // $("#loader").fadeIn()
+        debounceTimeout = setTimeout(() => {
+            $.ajax({
+                url: "/search-friend",
+                type: "GET",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    search_value : serachVal == null ? '': serachVal
+                },
+                success: function(res){
+                    if(res.status === 'success'){
+                        $('#user-list').html('')
+                        $('#user-list').html(res.view)
+                    }
+                },
+                error: function(error){
+                    console.log(error)
+                },
+                complete: function() {
+                    $("#loader").fadeOut()
+                }
+
+            })
+        }, searchInterval);
+    }
+
+    $('#addFriendModal').find('input[id="search-friend-input"]')
+            .on('input', function(){
+                searchAndGetAllFriends($(this).val().trim())
+            })
+
     $(document).on('mousemove keypress', resetActivity);
     setInterval(checkActivity, 10000);
+
+    $(document).ready(function(){
+        $('body').on('click', '#add_friend_btn', function(){
+            let _this = $(this)
+            let id = _this.data('id')
+            $.ajax({
+                url: "/send-friend-request",
+                type: "GET",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    id : id
+                },
+                success: function(res){
+                    _this.text('Sent...')
+                    _this.addClass('btn-success').removeClass('btn-primary').data('attr', 'disabled')
+                    console.log(res)
+                },
+                error: function(error){
+                    console.log(error)
+                }
+            })
+        })
+    })
 
 
 
