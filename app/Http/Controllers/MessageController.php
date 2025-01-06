@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -35,7 +36,9 @@ class MessageController extends Controller
             if($request->has('images')){
     
                 foreach($request->file('images') as $file){
-                    $path = $file->store('media',['disk' => 'public']);
+                    $path = $file->store('media','public');
+                    Log::info('images store path: ' . $path);
+
                     $images[] = $path;
                 }
     
@@ -49,6 +52,7 @@ class MessageController extends Controller
                 $message_type = 'audio';
                 $audio = $request->file('audio');
                 $filePath = $audio->store('recordings', 'public');
+                Log::info('Audio file stored at: ' . $filePath);
                 
                 $message = new Message();
                 $message->sender_id =Auth::user()->id;

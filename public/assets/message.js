@@ -106,10 +106,11 @@ $(document).ready(function(){
         if ($('.img-container').children().length > 0) {
             $('.img-container .img-div img').each(function() {
                 let imgSrc = $(this).attr('src');
-                $('.messages .message:last').after(
+                $('.messages').append(
                     `<div class="message sent">
                         <img src="${imgSrc}" alt="img" width="90" height="90">
                         <p class="m-0 p-0">${message === '' ? '' : message}</p>
+                         <div class="sender_message_time"> just now </div>
                     </div>`
                 );
                 let blobBin = atob(imgSrc.split(',')[1]);
@@ -127,6 +128,7 @@ $(document).ready(function(){
             
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                console.log("Audio Blob:", audioBlob);  // Add this line for debugging
                 formData.append("audio", audioBlob, "recording.wav");
                 audioChunks = [];
                 
@@ -164,7 +166,7 @@ $(document).ready(function(){
     
         
         $('.img-container').html('');
-    
+        $('.messages').css('height','70vh');
         function sendAjaxRequest(formData) {
             $.ajax({
                 url: "/send-message",

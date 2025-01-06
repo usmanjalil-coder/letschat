@@ -56,7 +56,7 @@ window.Echo.private(`chat-channel.${userId}`)
         if(e.message_type === 'media'){
             if(e.media.length === 1){
                 const mediaHtml = `
-                <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
+                <div class="message received position-relative" style="margin-top: 50px;  display: flex; flex-wrap: wrap">
                     <div class="receiver_image_and_name">
                         <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
