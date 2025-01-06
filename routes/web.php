@@ -3,6 +3,8 @@
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VideoController;
+use Illuminate\Support\Facades\Http;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -12,11 +14,14 @@ Auth::routes();
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-// Route::group(['middleware' => 'is-admin'], function(){
+Route::group(['middleware' => 'auth'], function(){
     Route::post('/send-message', [MessageController::class,'send_message'])->name('send.message');
     Route::get('/fetch-message', [MessageController::class,'fetch_conversation'])->name('fetch.message');
     Route::get('/search-friend',[MessageController::class, 'searchFriend'])->name('search.friend');
     Route::get('/send-friend-request', [MessageController::class,'sendFriendRequest'])->name("send.friend.request");
+    Route::get('/fetch-friend-request', [MessageController::class,'getFriendRequestNotification'])->name('fetch.friend.request');
+    Route::get('/request-accept-reject', [MessageController::class,'requestAcceptedOrRejected'])->name('request.accept.or.reject');
+});
 
     Route::post('/update-last-seen', function () {
         try{
@@ -30,11 +35,9 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
             dd($th);
         }
     });
-// });
 // Route::post('/is-typing', [MessageController::class,'isTyping'])->name('is.typing');
 
-use App\Http\Controllers\VideoController;
-use Illuminate\Support\Facades\Http;
+
 
 Route::get('/videos', [VideoController::class, 'index']);
 Route::post('/videos', [VideoController::class, 'store']);

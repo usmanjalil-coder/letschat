@@ -302,3 +302,7 @@ body {
     position: absolute;
 }
 
+.hidden{
+    display: none !important;
+}
+
