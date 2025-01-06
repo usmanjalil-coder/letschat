@@ -36,6 +36,7 @@
     <div id="app">
 
         @include('partials.view_media_modal')
+        @include('modals.add_friend_modal')
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
@@ -86,6 +87,9 @@
                             </li>
                         @endguest
                     </ul>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-primary" id="add_frnd_btn">Add friend</button>
                 </div>
             </div>
         </nav>
