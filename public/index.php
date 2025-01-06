@@ -16,4 +16,4 @@ require __DIR__.'/../vendor/autoload.php';
     ->handleRequest(Request::capture());
 
 $executionTime = microtime(true) - LARAVEL_START;
-Log::info('Request execution Time is ------->  '. $executionTime);
+// Log::info('Request execution Time is ------->  '. $executionTime);

@@ -46,7 +46,7 @@ var et="top",vt="bottom",yt="right",tt="left",es="auto",Tr=[et,vt,yt,tt],Un="sta
                     </audio>
                 </div>
             </div>`;$(".messages").append(e)}if(r.message_type==="media")if(r.media.length===1){const e=`
-                <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
+                <div class="message received position-relative" style="margin-top: 50px;  display: flex; flex-wrap: wrap">
                     <div class="receiver_image_and_name">
                         <img src="${r.renderImage?"storage/"+r.renderImage:"images/person.jpg"}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${r.userName}, <small>${new Date(r.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</small>

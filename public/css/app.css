@@ -286,6 +286,7 @@ body {
     border-radius: 20px;
     padding: 14px;
     display: flex;
+    z-index: 1;
 }
 
 .rcvr-data p{
