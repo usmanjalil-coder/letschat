@@ -100,7 +100,7 @@
                     <div>
                         <button type="button" class="btn  position-relative" style="margin-right: 30px" id="request-list">
                             <i class="bi bi-people text-dark"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-light">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-light" id="notification_counter">
                                 {{ getNotificationCounter() }}
                             </span>
                         </button>
@@ -126,11 +126,11 @@
     <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
 
     <script src="{{ asset('assets/emojionearea.min.js') }}"></script>
-    {{-- @vite(['resources/js/app.js']) --}}
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    @vite(['resources/js/app.js'])
+    {{-- <script src="{{ asset('js/app.js') }}" defer></script> --}}
     <script src="{{ asset('assets/message.js') }}"></script>
     <script src="{{ asset('assets/zego.js') }}"></script>
-
+    <script src="{{ asset('assets/toastr.js') }}"></script>
 
 
 </body>

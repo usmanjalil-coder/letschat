@@ -8,12 +8,20 @@
                     <h6 class="mb-0">{{ $friend['name'] }}</h6>
                     <small class="text-muted">{{ $friend['email'] }}</small>
                 </div>
-                <button class="btn {{ $friend['request_send'] ? 'btn-success' : 'btn-primary' }} btn-sm ms-3" 
-                    id="add_friend_btn" 
-                    data-friend-status="{{ intval($friend['request_send']) }}" 
-                    data-id="{{ $friend['id'] }}">
-                    {{ $friend['request_send'] ? 'Cancel Friend Request' : 'Send Request' }}
-                </button>
+                @if ($friend['already_friend'])
+                    <button class="btn btn-warning btn-sm ms-3" 
+                        id="unfriend_user" data-type="unfriend"
+                        data-uid="{{ $friend['id'] }}">
+                        {{ 'Unfriend' }}
+                    </button>
+                @else
+                    <button class="btn {{ $friend['request_send'] ? 'btn-success' : 'btn-primary' }} btn-sm ms-3" 
+                        id="add_friend_btn" 
+                        data-friend-status="{{ intval($friend['request_send']) }}" 
+                        data-id="{{ $friend['id'] }}">
+                        {{ $friend['request_send'] ? 'Cancel Friend Request' : 'Send Request' }}
+                    </button>
+                @endif
             </div>
         @endforeach
         

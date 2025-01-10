@@ -432,6 +432,7 @@ $(document).ready(function(){
 
     $(document).ready(function() {
         $('body').on('click', '#add_friend_btn', function() {
+            
             let _this = $(this);
             let id = _this.data('id');
             let status = parseInt(_this.data('friend-status'));
@@ -452,16 +453,16 @@ $(document).ready(function(){
                         status = parseInt(_this.attr('data-friend-status')); 
     
                         if (status === 0) {
-                            console.log('Inside 0 (Send Request)');
                             _this.text('Cancel Friend Request')
                                  .addClass('btn-success').removeClass('btn-primary')
-                                 .attr('data-friend-status', 1); // Change to cancel type
+                                 .attr('data-friend-status', 1);
                         } else if (status === 1) {
                             console.log('Inside 1 (Cancel Request)');
                             _this.text('Send Request')
                                  .addClass('btn-primary').removeClass('btn-success')
-                                 .attr('data-friend-status', 0); // Change to send type
+                                 .attr('data-friend-status', 0); 
                         }
+                        showToast(res.message, 'success')
                     } else {
                         console.error('Error:', res.message);
                     }
@@ -472,11 +473,7 @@ $(document).ready(function(){
             });
         });
 
-        $('body').on('click', '.request_accept_or_reject', function() {
-            let _this = $(this);
-            let id = _this.data('uid');
-            let type = _this.data('type');
-            if(type === '') return ;
+        function friendRequestAcceptORReject(_this, id, type) {
             _this.text('Loading...');
     
             $.ajax({
@@ -495,18 +492,29 @@ $(document).ready(function(){
                             _this.text('Request accpeted').addClass('btn-success').prop('disabled', true)
                             $('#request_rejected').remove()
                             
-                        }else{
+                        }else if(type === 'rejected'){
                             _this.text('Request Rejected').removeClass("btn-danger").addClass('btn-success').prop('disabled', true);
                             $('#request_accepted').remove()
+                        }else{
+                            _this.text('Send Request').removeClass("btn-warning").addClass('btn-primary')
                         }
+                        showToast(res.message, 'success')
                     } else {
-                        console.error('Error:', res.message);
+                        showToast(res.message, 'error');
                     }
                 },
                 error: function(error) {
                     console.log(error);
                 }
             });
+        }
+
+        $('body').on('click', '.request_accept_or_reject, #unfriend_user', function() {
+            let _this = $(this);
+            let id = _this.data('uid');
+            let type = _this.data('type');
+            // if(type != 'accepted' || type != 'rejected' || type != 'unfriend' || type == '') return ;
+            friendRequestAcceptORReject(_this,id, type)
         });
     });
     

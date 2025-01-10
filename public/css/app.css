@@ -306,3 +306,30 @@ body {
     display: none !important;
 }
 
+.toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 999999;
+  }
+
+  .toast.show {
+    opacity: 1;
+  }
+
+  .toast.success {
+    background-color: #4abd4a;
+  }
+
+  .toast.error {
+    background-color: #b93531;
+  }
+

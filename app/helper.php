@@ -15,5 +15,7 @@ function toLocalTimeZone($date)
 }
 
 function getNotificationCounter() {
-    return Auth::check() ? Notification::where('to_user_id', Auth::user()->id)->count() : 0;
+    return Auth::check() 
+            ? Notification::where('to_user_id', Auth::user()->id)->where('action', 'friend_request')->count() 
+            : 0;
 }

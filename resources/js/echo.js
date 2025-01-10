@@ -1,8 +1,10 @@
 import Echo from 'laravel-echo';
-import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
+import Noty from 'noty';
+import 'noty/lib/noty.css'; // Default CSS for Noty
+// import 'noty/lib/themes/mint.css';
 
 // Pusher.logToConsole = true;
 
@@ -141,7 +143,99 @@ window.Echo.private(`chat-channel.${userId}`)
        
         $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
         // toastr.success(`<strong>${e.userName}</strong>: ${e.message}`);
+    })
+    .listen('.notification-counter', (e) => {
+        console.log(e)
+        let notiCounter = $("#notification_counter").text();
+        let userData = e.user_details[0];
+        switch (userData?.message_type) {
+            case 'friend_request':
+                showNoti(e.userId, userData);
+                parseInt(notiCounter) >= 0 ? $("#notification_counter").text(parseInt(notiCounter) + 1) : $("notification_counter").text(0);
+                break;
+
+            case 'request_cancel':
+                parseInt(notiCounter) > 0 ? $("#notification_counter").text(parseInt(notiCounter) - 1) : $("notification_counter").text(0);
+                break;
+        
+            default:
+                break;
+        }
     });
+
+    function friendRequestAcceptORRejectEcho(id, type) {
+        let _this = $(this)
+        _this.text('Loading...');
+
+        $.ajax({
+            url: "/request-accept-reject",
+            type: "GET",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                id: id,
+                type: type
+            },
+            success: function(res) {
+                if (res.status === 'success') {
+                    if(type === 'accepted') {
+                        _this.text('Request accpeted').addClass('btn-success').prop('disabled', true)
+                        $('#request_rejected').remove()
+                        
+                    }else if(type === 'rejected'){
+                        _this.text('Request Rejected').removeClass("btn-danger").addClass('btn-success').prop('disabled', true);
+                        $('#request_accepted').remove()
+                    }else{
+                        _this.text('Send Request').removeClass("btn-warning").addClass('btn-primary')
+                    }
+                    showToast(res.message, 'success')
+                } else {
+                    showToast(res.message, 'error');
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function showNoti(userId, userData) {
+        var n = new Noty({
+            theme: 'sunset',
+            layout: 'bottomLeft',
+            type: 'info',
+            closeWith: ['click', 'button'],
+            text: `
+              <div style="display: flex; align-items: center;">
+                <img src="${userData.image ? 'storage/' + userData.image : 'images/person.jpg'}" alt="User Image" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;" />
+                <span style="font-size: 16px;">${capitalizeFirstLetter(userData.name)}</span>&nbsp;
+                <span style="font-size: 13px;">${userData.message}</span>
+              </div>
+            `,
+            buttons: [
+                Noty.button('Accept', 'btn btn-sm btn-success', function () {
+                    console.log('Accepted:', userId);
+                    // Your logic for accept button
+                    friendRequestAcceptORRejectEcho(userId, 'accepted')
+                    n.close();
+                }, { class: 'request_accept_or_reject', 'data-type': 'accepted', 'data-uid': userId }),
+    
+                Noty.button('Cancel', 'btn btn-sm btn-danger', function () {
+                    console.log('Rejected:', userId);
+                    // Your logic for cancel button
+                    friendRequestAcceptORRejectEcho(userId, 'rejected')
+                    n.close();
+                }, { class: 'request_accept_or_reject', 'data-type': 'rejected', 'data-uid': userId })
+            ]
+        });
+    
+        n.show();
+    }
+    
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
     // window.Echo.private(`typing-channel.${userId}`)
     // .listen('.typing-event', (e) => {
@@ -158,17 +252,14 @@ window.Echo.private(`chat-channel.${userId}`)
 
     window.Echo.join('online-users')
         .here(users => {
-            console.log('user already ')
             onlineUsers = users;
             updateOnlineStatus(onlineUsers); 
         })
         .joining(user => {
-            console.log('user just join')
             onlineUsers.push(user);
             updateOnlineStatus(onlineUsers);
         })
         .leaving(user => {
-            console.log('user leave')
             onlineUsers = onlineUsers.filter(u => u.id !== user.id);
             updateOnlineStatus(onlineUsers);
         });
@@ -184,7 +275,6 @@ window.Echo.private(`chat-channel.${userId}`)
                 onlineUsers.push(user.id)
             });
             localStorage.setItem('online-users',JSON.stringify(onlineUsers))
-            console.log(users)
         }
 
 

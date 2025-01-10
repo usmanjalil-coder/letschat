@@ -166,6 +166,7 @@ class MessageController extends Controller
                                         $friend->request_send = Notification::query()->friendRequest()
                                                         ->where('to_user_id', $friend->id)
                                                         ->exists();
+                                        $friend->already_friend = UserFriend::query()->isUserFriend($friend)->exists();
                                         return $friend;
                                     });
 
@@ -188,9 +189,17 @@ class MessageController extends Controller
 
                 if ($friendRequest->exists()) {
                     $friendRequest->delete();
+
+                    $this->post_notification([
+                        'to_user_id' => $to_user_id,
+                        'from_user_id' => authUserId(),
+                        'action' => 'request_cancel',
+                        'message' => 'friend request cancelled'
+                    ]);
+
                     return response()->json([
                         'status' => 'success',
-                        'message' => 'Friend request removed successfully'
+                        'message' => 'Friend request Cancelled successfully'
                     ]);
                 } else {
                     $this->post_notification([
@@ -240,8 +249,9 @@ class MessageController extends Controller
     {
         $id = $request->id;
         // dd($id);
+        $user = User::whereId($id)->first();
         $type = $request->type;
-        if(!$id){
+        if(!is_numeric($id)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'User or id not found'
@@ -273,7 +283,7 @@ class MessageController extends Controller
                 if ($noti->exists()) {
                     $noti->delete();
 
-                    if(! UserFriend::where('user_id', authUserId())->where('friend_id')->exists()){
+                    if(! UserFriend::query()->isUserFriend($user)->exists()){
                         UserFriend::create([
                             'user_id' => authUserId(),
                             'friend_id' => $id
@@ -292,6 +302,19 @@ class MessageController extends Controller
                     }
 
                 }
+                break;
+            case 'unfriend': 
+                if(UserFriend::query()->isUserFriend($user)->exists()){
+                    UserFriend::query()->isUserFriend($user)->delete();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Unfreind successfully'
+                    ]);
+                }
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'this user is not friend right now'
+                ]);
                 break;
             default:
                 return response()->json([
