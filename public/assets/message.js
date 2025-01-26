@@ -356,10 +356,39 @@ $(document).ready(function(){
         searchAndGetAllFriends()
         $('#addFriendModal').modal('show')
     })
-
     $('#addFriendModal .close').on('click', function(){
         $('#addFriendModal').modal('hide')
     })
+
+    // Friend request modal 
+    $('body').on('click', '#request-list', () => {
+        $('#friendRequestModal').modal('show')
+        $.ajax({
+            url: "/fetch-friend-request",
+            type: "GET",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function(){
+                $('#loader').css('display', 'block !important')
+            },
+            success: function(res){
+                if(res.status == 'success'){
+                    $('#loader').css('display', 'none !important')
+                    $('#request-list-append').html(res.view)
+                }
+            },
+            error: function(err){
+                $('#loader').css('display', 'none !important')
+                console.log(err);
+            }
+        })
+    })
+    $('#friendRequestModal .close').on('click', function(){
+        $('#friendRequestModal').modal('hide')
+    })
+
+   
     var debounceTimeout; 
     var searchInterval = 200;
 
@@ -401,10 +430,15 @@ $(document).ready(function(){
     $(document).on('mousemove keypress', resetActivity);
     setInterval(checkActivity, 10000);
 
-    $(document).ready(function(){
-        $('body').on('click', '#add_friend_btn', function(){
-            let _this = $(this)
-            let id = _this.data('id')
+    $(document).ready(function() {
+        $('body').on('click', '#add_friend_btn', function() {
+            
+            let _this = $(this);
+            let id = _this.data('id');
+            let status = parseInt(_this.data('friend-status'));
+    
+            _this.text('Loading...');
+    
             $.ajax({
                 url: "/send-friend-request",
                 type: "GET",
@@ -412,19 +446,78 @@ $(document).ready(function(){
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 data: {
-                    id : id
+                    id: id
                 },
-                success: function(res){
-                    _this.text('Sent...')
-                    _this.addClass('btn-success').removeClass('btn-primary').data('attr', 'disabled')
-                    console.log(res)
+                success: function(res) {
+                    if (res.status === 'success') {
+                        status = parseInt(_this.attr('data-friend-status')); 
+    
+                        if (status === 0) {
+                            _this.text('Cancel Friend Request')
+                                 .addClass('btn-success').removeClass('btn-primary')
+                                 .attr('data-friend-status', 1);
+                        } else if (status === 1) {
+                            console.log('Inside 1 (Cancel Request)');
+                            _this.text('Send Request')
+                                 .addClass('btn-primary').removeClass('btn-success')
+                                 .attr('data-friend-status', 0); 
+                        }
+                        showToast(res.message, 'success')
+                    } else {
+                        console.error('Error:', res.message);
+                    }
                 },
-                error: function(error){
-                    console.log(error)
+                error: function(error) {
+                    console.log(error);
                 }
-            })
-        })
-    })
+            });
+        });
+
+        function friendRequestAcceptORReject(_this, id, type) {
+            _this.text('Loading...');
+    
+            $.ajax({
+                url: "/request-accept-reject",
+                type: "GET",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    id: id,
+                    type: type
+                },
+                success: function(res) {
+                    if (res.status === 'success') {
+                        if(type === 'accepted') {
+                            _this.text('Request accpeted').addClass('btn-success').prop('disabled', true)
+                            $('#request_rejected').remove()
+                            
+                        }else if(type === 'rejected'){
+                            _this.text('Request Rejected').removeClass("btn-danger").addClass('btn-success').prop('disabled', true);
+                            $('#request_accepted').remove()
+                        }else{
+                            _this.text('Send Request').removeClass("btn-warning").addClass('btn-primary')
+                        }
+                        showToast(res.message, 'success')
+                    } else {
+                        showToast(res.message, 'error');
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        $('body').on('click', '.request_accept_or_reject, #unfriend_user', function() {
+            let _this = $(this);
+            let id = _this.data('uid');
+            let type = _this.data('type');
+            // if(type != 'accepted' || type != 'rejected' || type != 'unfriend' || type == '') return ;
+            friendRequestAcceptORReject(_this,id, type)
+        });
+    });
+    
 
 
 

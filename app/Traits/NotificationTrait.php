@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Events\NotificationCounter;
 use App\Models\Notification;
 
 trait NotificationTrait
@@ -21,7 +22,8 @@ trait NotificationTrait
         $notifiable_type = !isset($args['notifiable_type']) ? null : $args['notifiable_type'];
         $notifiable_id = !isset($args['notifiable_id']) ? null : $args['notifiable_id'];
 
-        Notification::create([
+        
+        $action != 'request_cancel' && Notification::create([
             'to_user_id' => $to_user_id,
             'from_user_id' => $from_user_id,
             'action' => $action,
@@ -32,5 +34,12 @@ trait NotificationTrait
             'notifiable_type' => $notifiable_type,
             'notifiable_id' => $notifiable_id,
         ]);
+        $user_with_message = \App\Models\User::whereId($from_user_id)->get()->map(function($user) use ($message, $action) {
+            $user['message'] = $message;
+            $user['message_type'] = $action;
+            return $user;
+        });
+
+        broadcast(new NotificationCounter($to_user_id, $user_with_message ));
     }
 }

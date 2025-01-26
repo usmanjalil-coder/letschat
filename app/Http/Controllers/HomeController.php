@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\ChatEvent;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -25,10 +26,15 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // $userId = 1;
-        // $message = 'final message';
-        // event(new ChatEvent($userId, $message));
-        $all_users = User::where('id','!=', auth()->user()->id)->get();
-        return view('home', compact('all_users'));
+        $friends = User::where(function ($query) {
+            $query->whereHas('userFriends', function ($q) {
+                $q->where('friend_id', auth()->user()->id);
+            })
+            ->orWhereHas('friendOf', function ($q) {
+                $q->where('user_id', auth()->user()->id);
+            });
+        })->get();
+
+        return view('home', compact('friends'));
     }
 }
