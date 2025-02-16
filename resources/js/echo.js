@@ -25,7 +25,7 @@ var url = document.querySelector('meta[name="url"]').getAttribute('content');
 window.Echo.private(`chat-channel.${userId}`)
     .listen('.chat-event', (e) => {
 
-        if(e.message_type === 'message'){
+        if (e.message_type === 'message') {
             const messageHtml = `
                 <div class="message received position-relative" style="margin-top: 50px">
                     <div class="receiver_image_and_name">
@@ -37,7 +37,7 @@ window.Echo.private(`chat-channel.${userId}`)
             $('.messages').append(messageHtml);
         }
 
-        if(e.message_type === 'audio'){
+        if (e.message_type === 'audio') {
             const mediaHtml = `
             <div class="message received position-relative" style="margin-top: 50px">
                 <div class="receiver_image_and_name">
@@ -46,17 +46,17 @@ window.Echo.private(`chat-channel.${userId}`)
                 </div>
                 <div class="message sent">
                     <audio controls>
-                        <source src="${url +'storage/' + e.audioUrl}" type="audio/wav">
+                        <source src="${url + 'storage/' + e.audioUrl}" type="audio/wav">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
             </div>`;
-    
+
             $('.messages').append(mediaHtml);
         }
-        
-        if(e.message_type === 'media'){
-            if(e.media.length === 1){
+
+        if (e.message_type === 'media') {
+            if (e.media.length === 1) {
                 const mediaHtml = `
                 <div class="message received position-relative" style="margin-top: 50px;  display: flex; flex-wrap: wrap">
                     <div class="receiver_image_and_name">
@@ -67,27 +67,27 @@ window.Echo.private(`chat-channel.${userId}`)
                         <img src="${url + 'storage/' + e.media[0]}" alt="img" width="90" height="90">
                     </div>
                 </div>`;
-        
+
                 $('.messages').append(mediaHtml);
-            }else if(e.media.length === 2){
+            } else if (e.media.length === 2) {
                 let mediaHtml = `
                 <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
                     <div class="receiver_image_and_name">
                         <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                     </div>`;
-                    e.media.forEach(image => {
-                        mediaHtml += `
+                e.media.forEach(image => {
+                    mediaHtml += `
                         <div class="message sent">
                             <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
                         </div>`;
-                    });
-            
+                });
+
                 mediaHtml += `</div>`;
-            
+
                 $('.messages').append(mediaHtml);
             }
-            else if(e.media.length === 4){
+            else if (e.media.length === 4) {
                 let mediaHtml = `
                 <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
                     <div class="receiver_image_and_name">
@@ -100,12 +100,12 @@ window.Echo.private(`chat-channel.${userId}`)
                         <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
                     </div>`;
                 });
-            
+
                 mediaHtml += `</div>`;
-            
+
                 $('.messages').append(mediaHtml);
             }
-            else{
+            else {
                 e.media.forEach(item => {
                     const mediaHtml = `
                     <div class="message received position-relative" style="margin-top: 50px">
@@ -117,14 +117,14 @@ window.Echo.private(`chat-channel.${userId}`)
                             <img src="${url + 'storage/' + item}" alt="img" width="90" height="90">
                         </div>
                     </div>`;
-            
+
                     $('.messages').append(mediaHtml);
                 })
- 
+
             }
         }
 
-        if(e.message_type === "message_with_media"){
+        if (e.message_type === "message_with_media") {
             const message_with_media_html = `
             <div class="message received position-relative" style="margin-top: 50px">
                 <div class="receiver_image_and_name">
@@ -136,11 +136,11 @@ window.Echo.private(`chat-channel.${userId}`)
                 </div>
                 ${e.message}
             </div>`;
-    
+
             $('.messages').append(message_with_media_html);
         }
-       
-       
+
+
         $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
         // toastr.success(`<strong>${e.userName}</strong>: ${e.message}`);
     })
@@ -157,142 +157,116 @@ window.Echo.private(`chat-channel.${userId}`)
             case 'request_cancel':
                 parseInt(notiCounter) > 0 ? $("#notification_counter").text(parseInt(notiCounter) - 1) : $("notification_counter").text(0);
                 break;
-        
+
             default:
                 break;
         }
+    })
+    .listen('.request-accept-event', (e) => {
+        console.log(e)
+        let conservation_list = `
+            <div class="conversation-item" id="conservation-${e.userId}" data-id="${e.userId}">
+            <div>
+                <div class="all-online-user online_status" id="online-user-${e.userId}"></div>
+                <img src="${e.profilePicture ? 'storage/' + e.profilePicture : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="">
+                <strong>${e.name} - &nbsp;&nbsp;&nbsp;<span class="user-status"></span></strong>
+                <div class="btn-group " style="float: right">
+                    <i class="bi bi-three-dots-vertical three-dot" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item unfriend_user" href="javascript:void(0)" data-type="unfriend" data-uid="${e.userId}">Unfriend</a></li>
+                    </ul>
+                </div>
+                <span id="typing-2" class="timestamp d-none">Typing...</span>
+            </div>
+        </div>`;
+        if($('.conversation-item').length === 0) {
+            $('.conversation-list').html(conservation_list)
+        }else{
+            $('.conversation-list').prepend(conservation_list)
+        }
     });
 
-    function friendRequestAcceptORRejectEcho(id, type) {
-        let _this = $(this)
-        _this.text('Loading...');
-
-        $.ajax({
-            url: "/request-accept-reject",
-            type: "GET",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            data: {
-                id: id,
-                type: type
-            },
-            success: function(res) {
-                if (res.status === 'success') {
-                    if(type === 'accepted') {
-                        _this.text('Request accpeted').addClass('btn-success').prop('disabled', true)
-                        $('#request_rejected').remove()
-                        
-                    }else if(type === 'rejected'){
-                        _this.text('Request Rejected').removeClass("btn-danger").addClass('btn-success').prop('disabled', true);
-                        $('#request_accepted').remove()
-                    }else{
-                        _this.text('Send Request').removeClass("btn-warning").addClass('btn-primary')
-                    }
-                    showToast(res.message, 'success')
-                } else {
-                    showToast(res.message, 'error');
-                }
-            },
-            error: function(error) {
-                console.log(error);
-            }
+function showNoti(userId, userData) {
+    var audio = new Audio('/ringtone/noty.wav');
+    audio.play().catch(() => {
+        document.addEventListener("click", function playOnce() {
+            audio.play();
+            document.removeEventListener("click", playOnce);
         });
-    }
-
-    function showNoti(userId, userData) {
-        var n = new Noty({
-            theme: 'sunset',
-            layout: 'bottomLeft',
-            type: 'info',
-            closeWith: ['click', 'button'],
-            text: `
+    });
+    var n = new Noty({
+        theme: 'sunset',
+        layout: 'bottomLeft',
+        type: 'info',
+        timeout: 3000,
+        progressBar: true,
+        closeWith: ['click', 'button'],
+        text: `
               <div style="display: flex; align-items: center;">
                 <img src="${userData.image ? 'storage/' + userData.image : 'images/person.jpg'}" alt="User Image" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;" />
                 <span style="font-size: 16px;">${capitalizeFirstLetter(userData.name)}</span>&nbsp;
                 <span style="font-size: 13px;">${userData.message}</span>
               </div>
             `,
-            buttons: [
-                Noty.button('Accept', 'btn btn-sm btn-success', function () {
-                    console.log('Accepted:', userId);
-                    // Your logic for accept button
-                    friendRequestAcceptORRejectEcho(userId, 'accepted')
-                    n.close();
-                }, { class: 'request_accept_or_reject', 'data-type': 'accepted', 'data-uid': userId }),
-    
-                Noty.button('Cancel', 'btn btn-sm btn-danger', function () {
-                    console.log('Rejected:', userId);
-                    // Your logic for cancel button
-                    friendRequestAcceptORRejectEcho(userId, 'rejected')
-                    n.close();
-                }, { class: 'request_accept_or_reject', 'data-type': 'rejected', 'data-uid': userId })
-            ]
-        });
-    
-        n.show();
-    }
-    
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    });
 
-    // window.Echo.private(`typing-channel.${userId}`)
-    // .listen('.typing-event', (e) => {
-    //     console.log('is-typing')
-    //     $('.message-input p').removeClass('d-none').text(`${e.senderName} is typing...`);
+    n.show();
+}
 
-    //     setTimeout(function() {
-    //         $('.message-input p').addClass('d-none');
-    //     }, 2000);
-    // });
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
-    let onlineUsers = [];
+// window.Echo.private(`typing-channel.${userId}`)
+// .listen('.typing-event', (e) => {
+//     console.log('is-typing')
+//     $('.message-input p').removeClass('d-none').text(`${e.senderName} is typing...`);
 
-
-    window.Echo.join('online-users')
-        .here(users => {
-            onlineUsers = users;
-            updateOnlineStatus(onlineUsers); 
-        })
-        .joining(user => {
-            onlineUsers.push(user);
-            updateOnlineStatus(onlineUsers);
-        })
-        .leaving(user => {
-            onlineUsers = onlineUsers.filter(u => u.id !== user.id);
-            updateOnlineStatus(onlineUsers);
-        });
-
-        function updateOnlineStatus(users) {
-            // $('#online-users-list').empty();
-            $('.all-online-user').removeClass('online_status')
-
-            let onlineUsers = []
-            
-            users.forEach(user => {
-                $('#online-user-' + user.id).addClass('online_status')
-                onlineUsers.push(user.id)
-            });
-            localStorage.setItem('online-users',JSON.stringify(onlineUsers))
-        }
-
-
-// for typing status 
-// $.ajaxSetup({
-//     headers: {
-//         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-//     }
+//     setTimeout(function() {
+//         $('.message-input p').addClass('d-none');
+//     }, 2000);
 // });
 
+let onlineUsers = [];
 
-$('body').on('keydown', '.message-value',function() {
+
+window.Echo.join('online-users')
+    .here(users => {
+        onlineUsers = users;
+        updateOnlineStatus(onlineUsers);
+    })
+    .joining(user => {
+        onlineUsers.push(user);
+        updateOnlineStatus(onlineUsers);
+    })
+    .leaving(user => {
+        onlineUsers = onlineUsers.filter(u => u.id !== user.id);
+        updateOnlineStatus(onlineUsers);
+    });
+
+function updateOnlineStatus(users) {
+    // $('#online-users-list').empty();
+    $('.all-online-user').removeClass('online_status')
+
+    let onlineUsers = []
+
+    users.forEach(user => {
+        $('#online-user-' + user.id).addClass('online_status')
+        onlineUsers.push(user.id)
+    });
+    localStorage.setItem('online-users', JSON.stringify(onlineUsers))
+}
+
+
+
+
+$('body').on('keydown', '.message-value', function () {
     let receiverId = $('.message-input .message-value').attr('data-receiver-id')
     console.log(receiverId, userId)
     window.Echo.private(`typing-status.${receiverId}`).whisper('typing', {
         userId: userId
     });
-  
+
 });
 
 window.Echo.private(`typing-status.${userId}`)
@@ -303,10 +277,6 @@ window.Echo.private(`typing-status.${userId}`)
 
 function showTypingStatus(userId) {
 
-    console.log('inside ',userId)
-    // $(`#typing-status-${userId}`).removeClass('d-none');
-    // setTimeout(() => {
-    //     $(`#typing-status-${userId}`).addClass('d-none');
-    // }, 2000);
+    console.log('inside ', userId)
 }
 
