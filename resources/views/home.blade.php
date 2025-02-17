@@ -7,13 +7,19 @@
             {{-- @dd($friends->toArray()) --}}
             @if (isset($friends) && count($friends) > 0)
                 @foreach ($friends as $friend)
-                    <div class="conversation-item" data-id="{{ $friend->id }}">
+                    <div class="conversation-item" id="conservation-{{ $friend->id }}" data-id="{{ $friend->id }}">
                         <div>
                             <div class="all-online-user" id="online-user-{{ $friend->id }}"></div>
                             <img src="{{ isset($friend->image) ? asset('storage') . '/' . $friend->image : asset('images/person.jpg') }}"
                                 class="rounded-circle" height="30px" width="30px" alt="">
                             <strong>{{ ucfirst($friend->name) }} - &nbsp;&nbsp;&nbsp;<span
                                     class="user-status"></span></strong>
+                            <div class="btn-group " style="float: right">
+                                <i class="bi bi-three-dots-vertical three-dot" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item unfriend_user" href="javascript:void(0)" data-type="unfriend" data-uid="{{ $friend->id }}">Unfriend</a></li>
+                                </ul>
+                            </div>
                             <span id="typing-{{ $friend->id }}" class="timestamp d-none">Typing...</span>
                         </div>
                     </div>
@@ -21,6 +27,7 @@
                                 <span class="quote">Muhammad Umar - trz</span> <span class="timestamp">2:35 PM</span>
                             </div> --}}
                 @endforeach
+                  
             @else
                 <div class=" text-center my-5">
                     <p>You havn't any friend!</p> <div>
@@ -44,10 +51,6 @@
 
             </div>
             <div class="img-container d-flex py-2">
-                {{-- <div class="img-div mx-3 position-relative">
-                <i class="bi bi-x"></i>
-                <img src="{{ asset('images/Capture.PNG') }}" alt="img" width="90" height="90">
-            </div> --}}
             </div>
 
             {{-- for audio  --}}

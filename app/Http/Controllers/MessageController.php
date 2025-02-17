@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ChatEvent;
 use App\Events\IsTypingEvent;
+use App\Events\RequestAcceptEvent;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\User;
@@ -288,13 +289,14 @@ class MessageController extends Controller
                             'user_id' => authUserId(),
                             'friend_id' => $id
                         ]);
+                        $profile_img = Auth::user()->image;
+                        broadcast(new RequestAcceptEvent($id, $profile_img, auth()->user()->name));
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Friend request accepted'
                         ]);
 
                     }else{
-
                         return response()->json([
                             'status' => 'error',
                             'message' => 'You are already friend'

@@ -9,8 +9,8 @@
                     <small class="text-muted">{{ $friend['email'] }}</small>
                 </div>
                 @if ($friend['already_friend'])
-                    <button class="btn btn-warning btn-sm ms-3" 
-                        id="unfriend_user" data-type="unfriend"
+                    <button class="btn btn-warning btn-sm ms-3 unfriend_user" 
+                        data-type="unfriend"
                         data-uid="{{ $friend['id'] }}">
                         {{ 'Unfriend' }}
                     </button>

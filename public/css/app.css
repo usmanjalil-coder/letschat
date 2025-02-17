@@ -333,3 +333,14 @@ body {
     background-color: #b93531;
   }
 
+
+  .three-dot{
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 15px;
+  }
+
+  .three-dot:hover {
+    background-color: #c1c1c1;
+  }
+
