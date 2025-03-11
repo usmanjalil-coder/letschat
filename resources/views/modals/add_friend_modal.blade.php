@@ -16,8 +16,8 @@
                 </div>
             
                 <!-- User List -->
-                <div id="loader" class="d-flex justify-content-center" style="display: none !important;">
-                    <img src="{{ asset('images/loader.gif') }}" height="60px" alt=""></div>
+                <div id="spinner" class="d-flex justify-content-center" style="">
+                    <img src="{{ asset('images/loader.gif') }}" class="d-none" height="60px" alt=""></div>
                 <div id="user-list">
                 </div>
             </div>

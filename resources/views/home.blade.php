@@ -7,7 +7,7 @@
             {{-- @dd($friends->toArray()) --}}
             @if (isset($friends) && count($friends) > 0)
                 @foreach ($friends as $friend)
-                    <div class="conversation-item" id="conservation-{{ $friend->id }}" data-id="{{ $friend->id }}">
+                    <div class="conversation-item position-relative" id="conservation-{{ $friend->id }}" data-id="{{ $friend->id }}">
                         <div>
                             <div class="all-online-user" id="online-user-{{ $friend->id }}"></div>
                             <img src="{{ isset($friend->image) ? asset('storage') . '/' . $friend->image : asset('images/person.jpg') }}"
@@ -55,15 +55,21 @@
 
             {{-- for audio  --}}
             <div id="audio-recording-ui" class="audio-recording-ui d-none position-absolute"
-                style="bottom: 70px; left: 26px;">
+                style="bottom: 81px; left: 26px;">
                 <div class="recording-info d-flex align-items-center">
                     <i class="bi bi-mic h4 me-2 text-danger"></i>
                     <span id="recording_span"></span>
                 </div>
-                <button id="stop-recording-btn" class="btn btn-danger btn-sm ms-3">Cancel</button>
-            </div>
+                <button id="stop-recording-btn" class="btn btn-sm ms-3 mx-3 bg-danger text-light">
+                    <i class="bi bi-trash"></i>
+                </button>
 
-            <div class="message-input d-none position-relative">
+                <button id="send-recording-btn" class="btn btn-sm ms-3 bg-primary text-light">
+                    <i class="bi bi-send-check"></i>
+                </button>
+            </div>
+            
+            <div class="message-input d-none position-relative" data-friend-id="" id="user-id-{{ auth()?->user()?->id }}">
 
                 <p class="d-none" style="position: absolute; top: -21px;">Typing...</p>
                 <input type="text" class="message-value" id="message-input" placeholder="Type a message..." />

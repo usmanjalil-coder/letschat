@@ -19,14 +19,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/emojionearea.min.css') }}">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    {{-- <link rel="stylesheet" href="https://cdn.zegocloud.com/rtc/ZegoUIKitLatest/ZegoUIKit.css"> --}}
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
     <style>
-        /* #root {
-            width: 80vw;
-            height: 50vh;
-            } */
+        .message audio {
+            width: 285px !important;
+            height: 37px !important;
+        }
+
+        .js-player {
+            width: 100% !important;
+            height: 40px !important;
+        }
     </style>
 
     <!-- Scripts -->
@@ -119,7 +123,8 @@
     </div>
 
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> --}}
+    <script src="{{ asset('assets/jquery.min.js') }}"></script>
     {{-- <script src="https://unpkg.com/@zegocloud/zego-im-sdk/zego-im-sdk.js"></script> --}}
 
     <script src="https://unpkg.com/zego-zim-web@2.16.0/index.js"></script>

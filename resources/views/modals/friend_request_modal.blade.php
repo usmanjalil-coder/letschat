@@ -10,8 +10,8 @@
                 </button>
             </div>
             <div class="modal-body" style="height: 70vh; overflow-y:scroll;">
-                <div id="loader" class="d-flex justify-content-center" style="display: none !important;">
-                    <img src="{{ asset('images/loader.gif') }}" height="60px" alt=""></div>
+                <div id="spinner" class="d-flex justify-content-center">
+                    <img src="{{ asset('images/loader.gif') }}" class="d-none" height="60px" alt=""></div>
                 <!-- User List -->
                 <div id="request-list-append">
                     

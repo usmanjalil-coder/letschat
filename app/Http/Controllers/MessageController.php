@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ChatEvent;
-use App\Events\IsTypingEvent;
-use App\Events\RequestAcceptEvent;
-use App\Models\Message;
-use App\Models\Notification;
-use App\Models\User;
-use App\Models\UserFriend;
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use App\Traits\NotificationTrait;
 use Exception;
 use Throwable;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Message;
+use App\Events\ChatEvent;
+use App\Models\UserFriend;
+use App\Models\Notification;
+use Illuminate\Http\Request;
+use App\Events\IsTypingEvent;
+use App\Events\UnfriendEvent;
+use App\Traits\NotificationTrait;
+use Illuminate\Http\JsonResponse;
+use App\Events\RequestAcceptEvent;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Events\MessageDeliveredEvent;
+use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
@@ -31,6 +33,7 @@ class MessageController extends Controller
             $images = [];
 
             $message_type = '';
+            $createdMessageId= null;
 
             if (isset($request['message'])) {
                 $message_type = 'message';
@@ -70,17 +73,19 @@ class MessageController extends Controller
                 $message->audio_file_name = $audio->getClientOriginalName();
                 $message->audio_file_path = $filePath;
                 $message->save();
+                $createdMessageId = $message->id;
             }
 
             if (!$request->has('audio') || ($request['audio'] === null)) {
 
-                Message::create([
+                $message = Message::create([
                     'sender_id' => Auth::user()->id,
                     'receiver_id' => $request['receiver_id'],
                     'message' => $request['message'],
                     'images' => json_encode($images),
                     'message_type' => $message_type
                 ]);
+                $createdMessageId = $message->id;
             }
 
 
@@ -90,8 +95,14 @@ class MessageController extends Controller
             $renderImage = Auth::user()->image;
             $createdAt = now();
             $media = count($images) ? $images : null;
-
+            $this->post_notification([
+                'to_user_id' => $request['receiver_id'],
+                'from_user_id' => authUserId(),
+                'action' => 'message',
+                'message' => $request['message']
+            ]);
             broadcast(new ChatEvent($request['receiver_id'], $request['message'], $name, $renderImage, $createdAt, $message_type, $media, $filePath ?? null));
+            broadcast(new MessageDeliveredEvent($createdMessageId, $request['receiver_id']));
             return response()->json([
                 'status' => 200,
                 'message' => 'Message send successfully'
@@ -124,6 +135,8 @@ class MessageController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
 
+            Notification::allRead((int)$receiverId);
+
             $receiver_lastseen = User::whereId($receiverId)->value('last_seen');
             $r['r_name'] = User::whereId($receiverId)->select('name', 'id')->first();
             if ($receiver_lastseen) {
@@ -148,12 +161,14 @@ class MessageController extends Controller
 
     public function isTyping(Request $request)
     {
-        broadcast(new IsTypingEvent(Auth::user()->name, $request['r_id']));
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Is typing event successfully fired'
-        ]);
+        if($request->input('receiver_id')) {
+            broadcast(new IsTypingEvent(Auth::user()->name, $request['receiver_id']));
+    
+            return response()->json([
+                'status' => 200,
+                'message' => 'Is typing event successfully fired'
+            ]);
+        }
     }
 
     public function searchFriend(Request $request): JsonResponse
@@ -162,14 +177,14 @@ class MessageController extends Controller
             $searchValue = trim($request->search_value) !== '' ? $request->search_value : '';
             $searchValue = '%' . $searchValue . '%';
             $friends['data'] = User::where('name', 'LIKE', $searchValue)
-                                    ->where('id', '!=', auth()->user()->id)
-                                    ->get()->map(function($friend) {
-                                        $friend->request_send = Notification::query()->friendRequest()
-                                                        ->where('to_user_id', $friend->id)
-                                                        ->exists();
-                                        $friend->already_friend = UserFriend::query()->isUserFriend($friend)->exists();
-                                        return $friend;
-                                    });
+                                ->where('id', '!=', auth()->user()->id)
+                                ->get()->map(function($friend) {
+                                    $friend->request_send = Notification::query()->friendRequest()
+                                                    ->where('to_user_id', $friend->id)
+                                                    ->exists();
+                                    $friend->already_friend = UserFriend::query()->isUserFriend($friend)->exists();
+                                    return $friend;
+                                });
 
             $view = view('render.search_friend_list', compact('friends'))->render();
             return response()->json([
@@ -228,13 +243,14 @@ class MessageController extends Controller
     public function getFriendRequestNotification(Request $request)
     {
         try{
-
+            $actions = ['friend_request', 'request_accepted'];
             $friendRequest = Notification::join('users', function($query) {
                 $query->on('notifications.from_user_id', '=', 'users.id');
-            })->where('to_user_id', authUserId())->where('action', 'friend_request')
+            })->where('to_user_id', authUserId())->whereIn('action', $actions)
             ->select('users.id','users.name', 'users.image', 'notifications.*')
             ->latest()
             ->get();
+            Notification::where('to_user_id', authUserId())->whereIn('action', $actions)->update(['read_at' => now()]);
             // dd($friendRequest->toArray());
             $view = view('render.get_notification', compact('friendRequest'))->render();
             return response()->json([
@@ -291,6 +307,12 @@ class MessageController extends Controller
                         ]);
                         $profile_img = Auth::user()->image;
                         broadcast(new RequestAcceptEvent($id, $profile_img, auth()->user()->name));
+                        $this->post_notification([
+                            'to_user_id' => $id,
+                            'from_user_id' => authUserId(),
+                            'action' => 'request_accepted',
+                            'message' => 'accept your friend request'
+                        ]);
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Friend request accepted'
@@ -308,6 +330,16 @@ class MessageController extends Controller
             case 'unfriend': 
                 if(UserFriend::query()->isUserFriend($user)->exists()){
                     UserFriend::query()->isUserFriend($user)->delete();
+                    Message::where(function($query) use ($user) {
+                        $query->where('sender_id', authUserId())
+                              ->where('receiver_id', $user->id);
+                    })
+                    ->orWhere(function($query) use ($user) {
+                        $query->where('sender_id', $user->id)
+                              ->where('receiver_id', authUserId());
+                    })
+                    ->delete();
+                    // broadcast(new UnfriendEvent($user->id));
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Unfreind successfully'
@@ -315,7 +347,7 @@ class MessageController extends Controller
                 }
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'this user is not friend right now'
+                    'message' => 'This user is not friend right now. Please relaod the page...!'
                 ]);
                 break;
             default:

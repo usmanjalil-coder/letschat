@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('audio_file_name')->nullable();
             $table->string('audio_file_path')->nullable();
             $table->string('message_type');
+            $table->enum('status', ['sent', 'delivered',  'seen'])->default('sent');
             $table->timestamps();
         });
     }

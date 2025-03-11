@@ -34,6 +34,7 @@ class HomeController extends Controller
                 $q->where('user_id', auth()->user()->id);
             });
         })->get();
+        // $friends = User::where('id','!=' ,authUserId())->get();
 
         return view('home', compact('friends'));
     }

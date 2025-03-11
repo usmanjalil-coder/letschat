@@ -21,6 +21,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/send-friend-request', [MessageController::class,'sendFriendRequest'])->name("send.friend.request");
     Route::get('/fetch-friend-request', [MessageController::class,'getFriendRequestNotification'])->name('fetch.friend.request');
     Route::get('/request-accept-reject', [MessageController::class,'requestAcceptedOrRejected'])->name('request.accept.or.reject');
+    Route::post('/is-typing', [MessageController::class,'isTyping'])->name('is.typing');
+
 });
 
     Route::post('/update-last-seen', function () {
@@ -35,7 +37,6 @@ Route::group(['middleware' => 'auth'], function(){
             dd($th);
         }
     });
-// Route::post('/is-typing', [MessageController::class,'isTyping'])->name('is.typing');
 
 
 

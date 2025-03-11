@@ -127,11 +127,14 @@ body {
     margin-bottom: 10px;
     width: fit-content;
     padding-bottom: 18px !important;
+    font-size: 13px;
 }
 
 .message.sent {
     background-color: #f0f4f9;
     margin-left: auto;
+    min-width: 104px;
+    text-align: right;
 }
 
 .message.received {
@@ -261,9 +264,9 @@ body {
 
 .sender_message_time{
     position: absolute;
-    font-size: 11px;
+    font-size: 10px;
     right: 6px;
-    width: 90px;
+    min-width: 40px;
     bottom: 2px;
 }
 
@@ -278,15 +281,18 @@ body {
 
 .rcvr-data{
     position: absolute;
-    left: 36%;
+    /* left: 36%; */
     background: #3f4257;
     color: white;
-    top: -39px;
-    min-width: 22%;
-    border-radius: 20px;
-    padding: 14px;
+    top: -1px;
+    width: -webkit-fill-available;
+    /* min-width: 22%; */
+    /* border-radius: 20px; */
+    padding: 1px;
     display: flex;
     z-index: 1;
+    margin-left: -12px;
+    margin-right: 25px;
 }
 
 .rcvr-data p{
@@ -342,5 +348,18 @@ body {
 
   .three-dot:hover {
     background-color: #c1c1c1;
+  }
+
+  .ticks--div {
+    width: fit-content;
+    position: absolute;
+    right: -10px;
+    /* background-color: gray; */
+    /* top: 11px; */
+    font-size: 20px;
+  }
+
+  .ticks--div i {
+    font-size: 15px;
   }
 

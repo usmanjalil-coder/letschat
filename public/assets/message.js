@@ -1,5 +1,11 @@
 $(document).ready(function () {
 
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     $('body').on('click', '.view_media_image', function () {
         $('#modal_image').attr('src', $(this).attr("src"));
         $('#viewPostModal').modal('show');
@@ -94,12 +100,27 @@ $(document).ready(function () {
     document.getElementById('stop-recording-btn').addEventListener('click', stopRecording);
 
 
-    $('body').on('click', '#send-btn', function () {
+    $('body').on('click', '#send-btn, #send-recording-btn', function () {
         var _this = $(this);
         let message = $('#message-input').val();
 
         if ($('#message-input').val().length > 0) {
-            $('.messages .message:last').after('<div class="message sent">' + message + '</div>');
+            console.log($('.messages').children('.message').length)
+            if($('.messages').children('.message').length > 0) {
+                $('.messages .message:last').after(`
+                    <div class="message sent position-relative">
+                    ${message}
+                    <div class="sender_message_time">Just now</div>
+                    </div>
+                `);
+            }else{
+                $('.messages').append(`
+                    <div class="message sent position-relative">
+                    ${message}
+                    <div class="sender_message_time">Just now</div>
+                    </div>
+                `);
+            }
         }
         $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
         $("#message-input").data("emojioneArea").setText('');
@@ -113,7 +134,7 @@ $(document).ready(function () {
             $('.img-container .img-div img').each(function () {
                 let imgSrc = $(this).attr('src');
                 $('.messages').append(
-                    `<div class="message sent">
+                    `<div class="message sent position-relative">
                         <img src="${imgSrc}" alt="img" width="90" height="90">
                         <p class="m-0 p-0">${message === '' ? '' : message}</p>
                          <div class="sender_message_time"> just now </div>
@@ -151,7 +172,7 @@ $(document).ready(function () {
 
                 $('.messages .message:last').after(
                     `<div class="message sent position-relative">
-                        <audio controls>
+                        <audio class="js-player" controls>
                             <source src="${URL.createObjectURL(audioBlob)}" type="audio/wav">
                             Your browser does not support the audio element.
                         </audio>
@@ -161,7 +182,14 @@ $(document).ready(function () {
                     </div>`
                 );
 
-
+                // Re-initialize Plyr
+                document.querySelectorAll('.js-player').forEach(player => {
+                    if (!player.plyr) {
+                        new window.Plyr(player, {
+                            controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+                        });
+                    }
+                });
 
                 sendAjaxRequest(formData);
                 isRecording = false
@@ -205,6 +233,7 @@ $(document).ready(function () {
         _this.addClass('active-conversation')
 
         $('#send-btn').attr('data-receiver-id', receiver_id);
+        $('#send-recording-btn').attr('data-receiver-id', receiver_id);
         $('#message-input').attr('data-receiver-id', receiver_id);
         $('#message-input').val('');
         $('.starter-text').remove()
@@ -249,6 +278,14 @@ $(document).ready(function () {
                 if (data.status == 200) {
                     $('#chat-area-append').html(data.view)
                     $('.message-input').removeClass('d-none')
+                    // Re-initialize Plyr
+                    document.querySelectorAll('.js-player').forEach(player => {
+                        if (!player.plyr) {
+                            new window.Plyr(player, {
+                                controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+                            });
+                        }
+                    });
                 }
                 setTimeout(function () {
                     scrollToBottom();
@@ -277,25 +314,20 @@ $(document).ready(function () {
 
     // let typingTimer;
 
-    // $('body').on('keydown', '#message-input', function() {
+    // $('body').on('keydown', '.message-value', function() {
     //     let _this = $(this);
-    //     let receiver_id = _this.attr('data-receiver-id');
+    //     let receiver_id = $('#message-input').data('receiver-id')
     //     clearTimeout(typingTimer);
-
-    //     $.post({
-    //         url: '/is-typing',
-    //         data: { receiver_id: receiver_id },
-    //         headers: {
-    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //         }
-    //     });
-
     //     typingTimer = setTimeout(function() {
-
+    //         $.post({
+    //             url: '/is-typing',
+    //             data: { receiver_id: receiver_id },
+    //             headers: {
+    //                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //             }
+    //         });
     //     }, 1000);
     // });
-
-
 })
 
 
@@ -368,7 +400,9 @@ $('#addFriendModal .close').on('click', function () {
 
 // Friend request modal 
 $('body').on('click', '#request-list', () => {
+    $("#notification_counter").text('0')
     $('#friendRequestModal').modal('show')
+    $("#spinner img").removeClass('d-none')
     $.ajax({
         url: "/fetch-friend-request",
         type: "GET",
@@ -376,17 +410,20 @@ $('body').on('click', '#request-list', () => {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         beforeSend: function () {
-            $('#loader').css('display', 'block !important')
+            $('#spinner').css('display', 'block !important')
         },
         success: function (res) {
             if (res.status == 'success') {
-                $('#loader').css('display', 'none !important')
+                $('#spinner').css('display', 'none !important')
                 $('#request-list-append').html(res.view)
             }
         },
         error: function (err) {
-            $('#loader').css('display', 'none !important')
+            $('#spinner').css('display', 'none !important')
             console.log(err);
+        },
+        complete: function() {
+            $("#spinner img").addClass('d-none')
         }
     })
 })
@@ -400,8 +437,8 @@ var searchInterval = 200;
 
 function searchAndGetAllFriends(serachVal = null) {
     clearTimeout(debounceTimeout)
-    // $("#loader").fadeIn()
     debounceTimeout = setTimeout(() => {
+        $("#spinner img").removeClass('d-none')
         $.ajax({
             url: "/search-friend",
             type: "GET",
@@ -421,7 +458,7 @@ function searchAndGetAllFriends(serachVal = null) {
                 console.log(error)
             },
             complete: function () {
-                $("#loader").fadeOut()
+                $("#spinner img").addClass('d-none')
             }
 
         })
@@ -432,9 +469,10 @@ $('#addFriendModal').find('input[id="search-friend-input"]')
     .on('input', function () {
         searchAndGetAllFriends($(this).val().trim())
     })
-
-$(document).on('mousemove keypress', resetActivity);
-setInterval(checkActivity, 10000);
+if(!window.location.pathname.includes('/login')) {
+    $(document).on('mousemove keypress', resetActivity);
+    setInterval(checkActivity, 10000);
+}
 
 $(document).ready(function () {
     $('body').on('click', '#add_friend_btn', function () {
@@ -514,6 +552,11 @@ $(document).ready(function () {
     </div>`;
 
     function friendRequestAcceptORReject(_this, id, type) {
+        if(type === 'unfriend') {
+            if(!confirm('Your chat will be deleted if you unfriend!')) {
+                return
+            }
+        }
         _this.text('Loading...');
 
         $.ajax({

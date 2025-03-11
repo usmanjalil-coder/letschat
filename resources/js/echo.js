@@ -5,6 +5,16 @@ window.Pusher = Pusher;
 import Noty from 'noty';
 import 'noty/lib/noty.css'; // Default CSS for Noty
 // import 'noty/lib/themes/mint.css';
+import Plyr from 'plyr';
+import 'plyr/dist/plyr.css';
+window.Plyr = Plyr;
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.js-player').forEach(player => {
+        new Plyr(player, {
+            controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+        });
+    });
+});
 
 // Pusher.logToConsole = true;
 
@@ -16,6 +26,12 @@ window.Echo = new Echo({
     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
+    authEndpoint: '/broadcasting/auth',
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+    },
 });
 
 var userId = document.querySelector('meta[name="auth-id"]').getAttribute('content');
@@ -34,6 +50,7 @@ window.Echo.private(`chat-channel.${userId}`)
                     </div>
                     ${e.message}
                 </div>`;
+                showNotiIncomeMessage(e, 'send you the message')
             $('.messages').append(messageHtml);
         }
 
@@ -45,14 +62,21 @@ window.Echo.private(`chat-channel.${userId}`)
                     ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                 </div>
                 <div class="message sent">
-                    <audio controls>
+                    <audio class="js-player" controls>
                         <source src="${url + 'storage/' + e.audioUrl}" type="audio/wav">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
             </div>`;
-
+            showNotiIncomeMessage(e, 'send you the voice message')
             $('.messages').append(mediaHtml);
+            document.querySelectorAll('.js-player').forEach(player => {
+                if (!player.plyr) {
+                    new window.Plyr(player, {
+                        controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+                    });
+                }
+            });
         }
 
         if (e.message_type === 'media') {
@@ -122,6 +146,7 @@ window.Echo.private(`chat-channel.${userId}`)
                 })
 
             }
+            showNotiIncomeMessage(e, 'send you media')
         }
 
         if (e.message_type === "message_with_media") {
@@ -136,7 +161,7 @@ window.Echo.private(`chat-channel.${userId}`)
                 </div>
                 ${e.message}
             </div>`;
-
+            showNotiIncomeMessage(e, 'send you message with media')
             $('.messages').append(message_with_media_html);
         }
 
@@ -145,7 +170,7 @@ window.Echo.private(`chat-channel.${userId}`)
         // toastr.success(`<strong>${e.userName}</strong>: ${e.message}`);
     })
     .listen('.notification-counter', (e) => {
-        console.log(e)
+        // console.log(e)
         let notiCounter = $("#notification_counter").text();
         let userData = e.user_details[0];
         switch (userData?.message_type) {
@@ -184,7 +209,45 @@ window.Echo.private(`chat-channel.${userId}`)
         }else{
             $('.conversation-list').prepend(conservation_list)
         }
+    })
+    .listen('.unfriend', (e) => {
+        $('#user-id-' + e.id).html('<b>You can\'t send message because your friend unfriend you </b>');
     });
+
+    function showNotiIncomeMessage(e, text) {
+        var audio = new Audio('/ringtone/noty.wav');
+        audio.play().catch(() => {
+            document.addEventListener("click", function playOnce() {
+                audio.play();
+                document.removeEventListener("click", playOnce);
+            });
+        });
+        var n = new Noty({
+            theme: 'sunset',
+            layout: 'bottomLeft',
+            type: 'info',
+            timeout: 3000,
+            progressBar: true,
+            closeWith: ['click', 'button'],
+            text: `
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0;">
+                    <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" 
+                        alt="User Image" 
+                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
+
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="font-size: 16px; font-weight: bold;">${capitalizeFirstLetter(e.userName)}</span>
+                            <p style="margin: 0; font-size: 13px; color: white;">${text}</p>
+                        </div>
+                        <span style="font-size: 15px; color: white; margin-top: 2px;">${e.message ?? ''}</span>
+                    </div>
+                </div>
+                `,
+        });
+    
+        n.show();
+    }
 
 function showNoti(userId, userData) {
     var audio = new Audio('/ringtone/noty.wav');
@@ -217,15 +280,6 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// window.Echo.private(`typing-channel.${userId}`)
-// .listen('.typing-event', (e) => {
-//     console.log('is-typing')
-//     $('.message-input p').removeClass('d-none').text(`${e.senderName} is typing...`);
-
-//     setTimeout(function() {
-//         $('.message-input p').addClass('d-none');
-//     }, 2000);
-// });
 
 let onlineUsers = [];
 
@@ -240,7 +294,10 @@ window.Echo.join('online-users')
         updateOnlineStatus(onlineUsers);
     })
     .leaving(user => {
-        onlineUsers = onlineUsers.filter(u => u.id !== user.id);
+        onlineUsers = onlineUsers.filter((u) => {
+            $('#last-seen-' + user.id).text('Offline')
+            return u.id !== user.id
+        });
         updateOnlineStatus(onlineUsers);
     });
 
@@ -252,31 +309,49 @@ function updateOnlineStatus(users) {
 
     users.forEach(user => {
         $('#online-user-' + user.id).addClass('online_status')
+        $('#last-seen-' + user.id).text('Active now')
         onlineUsers.push(user.id)
     });
     localStorage.setItem('online-users', JSON.stringify(onlineUsers))
 }
 
+let typingTimeout = null;
+let isTyping = false;
+$('body').on('keydown', '.message-value', function() {
+    const receiverId = $('#message-input').data('receiver-id') 
+    console.log(receiverId)// Receiver ID
+    // Clear previous timeout
+    if (isTyping) {
+        clearTimeout(typingTimeout);
+    }
 
+    // Set typing state
+    isTyping = true;
 
+    // Debounce: 500ms ke baad event broadcast karo
+    typingTimeout = setTimeout(function () {
+        // Broadcast typing event to Pusher channel
+        window.Echo.private(`typing.${receiverId}`)
+            .whisper('typing', {
+                sender_id: userId,
+            });
 
-$('body').on('keydown', '.message-value', function () {
-    let receiverId = $('.message-input .message-value').attr('data-receiver-id')
-    console.log(receiverId, userId)
-    window.Echo.private(`typing-status.${receiverId}`).whisper('typing', {
-        userId: userId
-    });
-
+        // Reset typing state after 2 seconds of inactivity
+        typingTimeout = setTimeout(function () {
+            isTyping = false;
+            window.Echo.private(`typing.${receiverId}`)
+                .whisper('stop-typing', {
+                    sender_id: userId,
+                });
+        }, 2000);
+    }, 500);
 });
-
-window.Echo.private(`typing-status.${userId}`)
-    .listenForWhisper('typing', (e) => {
-        console.log("Whisper received for typing event from user:", e.userId);
-        showTypingStatus(e.userId);
+console.log(userId)
+// Listen for typing events
+window.Echo.private(`typing.${userId}`)
+    .listenForWhisper('typing', function (event) {
+        console.log(`User ${event.sender_id} is typing...`);
+    })
+    .listenForWhisper('stop-typing', function (event) {
+        console.log('inside stope-typing')
     });
-
-function showTypingStatus(userId) {
-
-    console.log('inside ', userId)
-}
-

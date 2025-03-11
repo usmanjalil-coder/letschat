@@ -1,4 +1,4 @@
-
+{{-- @dd($friendRequest->toArray()); --}}
 @if (isset($friendRequest) && count($friendRequest) > 0)
     @foreach ($friendRequest as $key => $friendRequest)
         <div class="d-flex align-items-center mb-3" id="request_div_{{$friendRequest['from_user_id']}}">
@@ -10,10 +10,12 @@
                 </p>
                    
             </div>
-            <div>
-                <button class="btn btn-sm btn-danger request_accept_or_reject" id="request_rejected" data-type="rejected" data-uid="{{ $friendRequest['from_user_id'] }}" >Reject</button>
-                <button class="btn btn-sm btn-primary request_accept_or_reject" id="request_accepted" data-type="accepted" data-uid="{{ $friendRequest['from_user_id'] }} ">Accept</button>
-            </div>
+            @if ($friendRequest['action'] === 'friend_request')
+                <div>
+                    <button class="btn btn-sm btn-danger request_accept_or_reject" id="request_rejected" data-type="rejected" data-uid="{{ $friendRequest['from_user_id'] }}" >Reject</button>
+                    <button class="btn btn-sm btn-primary request_accept_or_reject" id="request_accepted" data-type="accepted" data-uid="{{ $friendRequest['from_user_id'] }} ">Accept</button>
+                </div>
+            @endif
         </div>
     @endforeach
 @else

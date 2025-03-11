@@ -13,7 +13,7 @@ export default defineConfig({
         }),
     ],
     build:{
-        outDir: "public/js",
+        outDir: "public/build",
         rollupOptions: {
             output: {
                 entryFileNames: 'app.js'
