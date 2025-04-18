@@ -23,10 +23,12 @@ class ChatEvent implements ShouldBroadcastNow
     public $message_type;
     public $media;
     public $audioUrl;
+    public $sender;
+    public $message_count;
     /**
      * Create a new event instance.
      */
-    public function __construct($userId , $message, $userName, $renderImage, $createdAt, $message_type , $media, $audioUrl)
+    public function __construct($userId , $message, $userName, $renderImage, $createdAt, $message_type , $media, $audioUrl,$sender, $message_count)
     {
         $this->userId = $userId;
         $this->message = $message;
@@ -36,6 +38,8 @@ class ChatEvent implements ShouldBroadcastNow
         $this->message_type = $message_type;
         $this->media = $media;
         $this->audioUrl = $audioUrl;
+        $this->sender = $sender;
+        $this->message_count = $message_count;
     }
 
     /**

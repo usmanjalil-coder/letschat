@@ -10,7 +10,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 class VerifyCsrfToken extends Middleware
 {
     protected $except = [
-        '/broadcasting/auth', // Laravel Echo & Pusher authentication
+        'broadcasting/auth', // Laravel Echo & Pusher authentication
     ];
 
 }

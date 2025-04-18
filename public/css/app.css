@@ -353,9 +353,9 @@ body {
   .ticks--div {
     width: fit-content;
     position: absolute;
-    right: -10px;
+    right: -2px;
     /* background-color: gray; */
-    /* top: 11px; */
+    top: 37px;
     font-size: 20px;
   }
 
@@ -363,3 +363,15 @@ body {
     font-size: 15px;
   }
 
+  .send-message-btn i:hover {
+    color: gray;
+  }
+
+  .noti_counter__conservation{
+    border-radius: 50%;
+    background: #44475d;
+    font-size: 10px;
+    padding: 0px 5px;
+    color: white !important;
+    margin-right: 4px;
+  }

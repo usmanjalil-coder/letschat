@@ -1,10 +1,15 @@
 <?php
 
-use App\Http\Controllers\MessageController;
+use App\Models\Message;
+use Illuminate\Http\Request;
+use App\Events\SeenAllMessageEvent;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\VideoController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\RecordingController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -22,6 +27,22 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/fetch-friend-request', [MessageController::class,'getFriendRequestNotification'])->name('fetch.friend.request');
     Route::get('/request-accept-reject', [MessageController::class,'requestAcceptedOrRejected'])->name('request.accept.or.reject');
     Route::post('/is-typing', [MessageController::class,'isTyping'])->name('is.typing');
+
+    Route::post('/mark-as-seen',function(Request $request) {
+        // dd($request->all());
+        $receiverImage = \App\Models\User::whereId((int)$request->receiver_id)->select('id','image')->first()->toArray();
+        
+        broadcast(new SeenAllMessageEvent(
+            $request['receiver_id'], 
+            authUserId(),
+            !is_null($receiverImage['image']) ?  asset('storage/'.$receiverImage['image']) : asset('images/person.jpg')
+        ));
+        Message::markAsSeen(authUserId(), $request->receiver_id);
+        return response()->json([
+            'status' => 200, 
+            'message' => 'Message seen'
+        ]);
+    })->name("mark.as.seen");
 
 });
 
@@ -44,41 +65,10 @@ Route::get('/videos', [VideoController::class, 'index']);
 Route::post('/videos', [VideoController::class, 'store']);
 
 
-Route::get('/curl',function(){
-
-    $url = 'https://catfact.ninja/fact';
-    $ci = curl_init();
-
-    curl_setopt($ci, CURLOPT_URL, $url);
-    curl_setopt($ci, CURLOPT_RETURNTRANSFER, true); 
-    curl_setopt($ci, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ci, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-
-    $result = curl_exec($ci);
-
-    if($result === FALSE)
-    {
-        return 'error is ' . curl_error($ci);
-    }
-
-    return dd(json_decode($result));
-
-});
-
-Route::get('/http',function(){
-
-    $url = 'https://catfact.ninja/fact';
-
-    return Http::get($url)['length'];
-    
-
-});
-
 Route::get('audio', function(){
     return view('Audio');
 });
 
-use App\Http\Controllers\RecordingController;
 
 Route::get('/recordings', [RecordingController::class, 'index'])->name('recordings.index');
 Route::post('/recordings-post', [RecordingController::class, 'store'])->name('recordings.store');

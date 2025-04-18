@@ -99,33 +99,47 @@ $(document).ready(function () {
 
     document.getElementById('stop-recording-btn').addEventListener('click', stopRecording);
 
+    function sendMessage(_this){
 
-    $('body').on('click', '#send-btn, #send-recording-btn', function () {
-        var _this = $(this);
-        let message = $('#message-input').val();
-
-        if ($('#message-input').val().length > 0) {
-            console.log($('.messages').children('.message').length)
+        var message = $("#message-input").data("emojioneArea").getText().trim();
+        let receiver_id = _this.attr('data-receiver-id');
+        var parent = $("#conservation-"+ receiver_id)
+        
+        if (message.trim().length > 0) {
+            // console.log($('.messages').children('.message').length)
             if($('.messages').children('.message').length > 0) {
                 $('.messages .message:last').after(`
                     <div class="message sent position-relative">
-                    ${message}
-                    <div class="sender_message_time">Just now</div>
+                        ${message}
+                        <div class="sender_message_time">Just now</div>
+                        <div class="ticks--div">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6464fa" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                            </svg>
+                        </div>
                     </div>
                 `);
             }else{
                 $('.messages').append(`
-                    <div class="message sent position-relative">
+                    <div class="message sent position-relative" style="margin-top: 40px; ">
                     ${message}
                     <div class="sender_message_time">Just now</div>
+                    <div class="ticks--div">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6464fa" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                            </svg>
+                        </div>
                     </div>
                 `);
             }
+            if(parent.hasClass('active-conversation')) 
+                parent.find('#conservaion__short_message_type').text(
+                                                    message.length > 25 ? message.slice(0,25) + '...' : message
+                                                )
         }
         $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
         $("#message-input").data("emojioneArea").setText('');
 
-        let receiver_id = _this.attr('data-receiver-id');
         let formData = new FormData();
         formData.append("message", message);
         formData.append("receiver_id", receiver_id);
@@ -138,6 +152,11 @@ $(document).ready(function () {
                         <img src="${imgSrc}" alt="img" width="90" height="90">
                         <p class="m-0 p-0">${message === '' ? '' : message}</p>
                          <div class="sender_message_time"> just now </div>
+                         <div class="ticks--div" style="bottom: -17px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6464fa" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                            </svg>
+                        </div>
                     </div>`
                 );
                 let blobBin = atob(imgSrc.split(',')[1]);
@@ -148,6 +167,13 @@ $(document).ready(function () {
                 let file = new Blob([new Uint8Array(array)], { type: 'image/jpeg' });
                 formData.append('images[]', file, `image-${Date.now()}.jpg`);
             });
+            if(parent.hasClass('active-conversation')) 
+                parent.find('#conservaion__short_message_type').html(`
+                                            <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -3px" width="14" height="14" fill="gray" class="bi bi-image" viewBox="0 0 16 16">
+                                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                                            </svg>
+                                            <span class="mt-1">Media</span>`)
         }
 
         if (isRecording) {
@@ -179,6 +205,11 @@ $(document).ready(function () {
                         <div class="sender_message_time">
                             ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
+                        <div class="ticks--div">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6464fa" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                            </svg>
+                        </div>
                     </div>`
                 );
 
@@ -186,7 +217,7 @@ $(document).ready(function () {
                 document.querySelectorAll('.js-player').forEach(player => {
                     if (!player.plyr) {
                         new window.Plyr(player, {
-                            controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+                            controls: ['play', 'progress', 'current-time', 'duration', 'mute']
                         });
                     }
                 });
@@ -201,27 +232,42 @@ $(document).ready(function () {
 
         $('.img-container').html('');
         $('.messages').css('height', '70vh');
-        function sendAjaxRequest(formData) {
-            $.ajax({
-                url: "/send-message",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    if (data.status == 200) {
-                        $('.messages').scrollTop($('.messages')[0].scrollHeight);
-                    }
-                },
-                error: function (error) {
-                    console.log(error);
-                }
-            });
+        
+    }
+
+    $('body').on('keydown', '.message-value',function(e) {
+        let _this = $("#message-input")
+        
+        if(e.keyCode === 13) {
+            console.log('enter is pressed')
+            sendMessage(_this);
         }
+    })
+
+    $('body').on('click', '#send-btn, #send-recording-btn', function () {
+        var _this = $(this);
+        sendMessage(_this);
     });
+    function sendAjaxRequest(formData) {
+        $.ajax({
+            url: "/send-message",
+            type: "POST",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    $('.messages').scrollTop($('.messages')[0].scrollHeight);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
 
     var receiverID;
 
@@ -237,6 +283,7 @@ $(document).ready(function () {
         $('#message-input').attr('data-receiver-id', receiver_id);
         $('#message-input').val('');
         $('.starter-text').remove()
+        _this.find('.noti_counter__conservation').text('')
         // $('.messages').scrollTop($('.messages')[0].scrollHeight);
         $.ajax({
             url: "/fetch-message",
@@ -282,7 +329,7 @@ $(document).ready(function () {
                     document.querySelectorAll('.js-player').forEach(player => {
                         if (!player.plyr) {
                             new window.Plyr(player, {
-                                controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+                                controls: ['play', 'progress', 'current-time', 'duration', 'mute']
                             });
                         }
                     });

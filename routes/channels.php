@@ -12,9 +12,9 @@ Broadcast::channel('chat-channel.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('typing.{receiverId}', function ($user, $receiverId) {
-    return true;
-});
+// Broadcast::channel('typing.{receiverId}', function ($user, $receiverId) {
+//     return ['id' => $user->id, 'name' => $user->name];
+// });
 
 
 // For online status

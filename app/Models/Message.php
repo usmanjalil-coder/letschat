@@ -41,4 +41,20 @@ class Message extends Model
             },
         );
     }
+
+    public static function scopeUsersMessage($query, $userId, $receiverId)
+    {
+        $query->where(function ($query) use ($userId, $receiverId) {
+            $query->where('sender_id', $userId)
+                ->where('receiver_id', $receiverId);
+        })->orWhere(function ($query) use ($userId, $receiverId) {
+            $query->where('sender_id', $receiverId)
+                ->where('receiver_id', $userId);
+        });
+    }
+
+    public static function scopeMarkAsSeen($query, $userId, $receiverId)
+    {
+        return $query->where('receiver_id', $userId)->where('sender_id', $receiverId)->where('status','sent')->update(['status' => 'seen']);
+    }
 }

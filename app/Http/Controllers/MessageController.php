@@ -16,6 +16,7 @@ use App\Events\UnfriendEvent;
 use App\Traits\NotificationTrait;
 use Illuminate\Http\JsonResponse;
 use App\Events\RequestAcceptEvent;
+use App\Events\SeenAllMessageEvent;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageDeliveredEvent;
@@ -101,8 +102,14 @@ class MessageController extends Controller
                 'action' => 'message',
                 'message' => $request['message']
             ]);
-            broadcast(new ChatEvent($request['receiver_id'], $request['message'], $name, $renderImage, $createdAt, $message_type, $media, $filePath ?? null));
-            broadcast(new MessageDeliveredEvent($createdMessageId, $request['receiver_id']));
+            $message_count = getNotificationCounterForBroad($request['receiver_id']);
+            
+            broadcast(new ChatEvent(
+                $request['receiver_id'], $request['message'], $name,
+                $renderImage, $createdAt, $message_type,
+                $media, $filePath ?? null, authUserId(), $message_count
+            ));
+            // broadcast(new MessageDeliveredEvent($createdMessageId, $request['receiver_id']));
             return response()->json([
                 'status' => 200,
                 'message' => 'Message send successfully'
@@ -124,30 +131,30 @@ class MessageController extends Controller
             $userId = Auth::id();
             $receiverId = $request->input('receiver_id');
 
-            $conversations = Message::where(function ($query) use ($userId, $receiverId) {
-                $query->where('sender_id', $userId)
-                    ->where('receiver_id', $receiverId);
-            })->orWhere(function ($query) use ($userId, $receiverId) {
-                $query->where('sender_id', $receiverId)
-                    ->where('receiver_id', $userId);
-            })
+            $conversations = Message::usersMessage($userId, $receiverId)
                 ->with(['sender', 'receiver'])
                 ->orderBy('created_at', 'asc')
                 ->get();
 
             Notification::allRead((int)$receiverId);
+            Message::markAsSeen($userId, $receiverId);
+            $receiverImage = User::whereId((int)$receiverId)->select('id','image')->first()->toArray();
+            // dd($receiverImage);
+
+            broadcast(new SeenAllMessageEvent(
+                $receiverId, 
+                $userId,
+                !is_null($receiverImage['image']) ?  asset('storage/'.$receiverImage['image']) : asset('images/person.jpg')
+            ));
+
+            $last_message_seen = Message::usersMessage($userId, $receiverId)->where('sender_id', $userId)->where('status', 'seen')->latest()->select('id')->first()?->toArray() ?? 0;
 
             $receiver_lastseen = User::whereId($receiverId)->value('last_seen');
             $r['r_name'] = User::whereId($receiverId)->select('name', 'id')->first();
-            if ($receiver_lastseen) {
-                $time = Carbon::parse($receiver_lastseen)->timezone('Asia/Karachi');
 
-                $r['last_seen'] = $time->diffInMinutes() < 60 ? $time->diffForHumans() : $time->format('g:i A');
-            } else {
-                $r['last_seen']  = null;
-            }
-            // dd($r);
-            $view = view('render.chating-box', compact('conversations', 'r'))->render();
+            $r['last_seen'] = getLastSeen($receiver_lastseen);
+
+            $view = view('render.chating-box', compact('conversations', 'r','last_message_seen'))->render();
 
             return response()->json([
                 'status' => 200,

@@ -11,7 +11,7 @@ window.Plyr = Plyr;
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.js-player').forEach(player => {
         new Plyr(player, {
-            controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+            controls: ['play', 'progress', 'current-time', 'duration', 'mute']
         });
     });
 });
@@ -25,64 +25,176 @@ window.Echo = new Echo({
     wsHost: import.meta.env.VITE_PUSHER_HOST ?? `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-    forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-    authEndpoint: '/broadcasting/auth',
+    // forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
+    // forceTLS: false,
+    // authEndpoint: '/broadcasting/auth',
     auth: {
         headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
     },
+    // withCredentials: true,
 });
 
 var userId = document.querySelector('meta[name="auth-id"]').getAttribute('content');
 var url = document.querySelector('meta[name="url"]').getAttribute('content');
 // var userName = document.querySelector('meta[name="auth-name"]').getAttribute('content');
 
+// let authId = $('meta[name="auth-id"]').attr('content')
+
+// $('body').on('keydown', '.message-value', function () {
+//     const receiverId = $('#message-input').data('receiver-id');
+//     console.log('auth id is ===>', authId);
+//     console.log('receiver id is ====> ', receiverId);
+
+//     const channel = window.Echo.private(`typing.${receiverId}`);
+
+//     channel.subscribed(() => {
+//         channel.whisper('typing', {
+//             sender_id: authId,
+//         });
+//     }).error((error) => {
+//         console.error('Error joining channel:', error);
+//     });
+// });
+
+function seenMessage(receiver__id) {
+    $.ajax({
+        url: "/mark-as-seen",
+        type: "POST",
+        data: {receiver_id: receiver__id},
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (data) {
+            if (data.status == 200) {
+                console.log(data.message)
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+
 window.Echo.private(`chat-channel.${userId}`)
     .listen('.chat-event', (e) => {
+        // console.log($(`#conservation-${e.sender}`).hasClass('active-conversation'))
+        let parent_conservation = $(`#conservation-${e.sender}`)
+        if(parent_conservation.hasClass('active-conversation')){
+            seenMessage(e.sender)
+        
+            if (e.message_type === 'message') {
+                const messageHtml = `
+                    <div class="message received position-relative" style="margin-top: 50px">
+                        <div class="receiver_image_and_name">
+                            <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                            ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                        </div>
+                        ${e.message}
+                    </div>`;
+                $('.messages').append(messageHtml);
+            }
 
-        if (e.message_type === 'message') {
-            const messageHtml = `
+            if (e.message_type === 'audio') {
+                const mediaHtml = `
                 <div class="message received position-relative" style="margin-top: 50px">
                     <div class="receiver_image_and_name">
                         <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                     </div>
-                    ${e.message}
+                    <div class="message sent">
+                        <audio class="js-player" controls>
+                            <source src="${url + 'storage/' + e.audioUrl}" type="audio/wav">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
                 </div>`;
-                showNotiIncomeMessage(e, 'send you the message')
-            $('.messages').append(messageHtml);
-        }
+                
+                $('.messages').append(mediaHtml);
+                document.querySelectorAll('.js-player').forEach(player => {
+                    if (!player.plyr) {
+                        new window.Plyr(player, {
+                            controls: ['play', 'progress', 'current-time', 'duration', 'mute']
+                        });
+                    }
+                });
+            }
 
-        if (e.message_type === 'audio') {
-            const mediaHtml = `
-            <div class="message received position-relative" style="margin-top: 50px">
-                <div class="receiver_image_and_name">
-                    <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
-                    ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                </div>
-                <div class="message sent">
-                    <audio class="js-player" controls>
-                        <source src="${url + 'storage/' + e.audioUrl}" type="audio/wav">
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-            </div>`;
-            showNotiIncomeMessage(e, 'send you the voice message')
-            $('.messages').append(mediaHtml);
-            document.querySelectorAll('.js-player').forEach(player => {
-                if (!player.plyr) {
-                    new window.Plyr(player, {
-                        controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume']
+            if (e.message_type === 'media') {
+                if (e.media.length === 1) {
+                    const mediaHtml = `
+                    <div class="message received position-relative" style="margin-top: 50px;  display: flex; flex-wrap: wrap">
+                        <div class="receiver_image_and_name">
+                            <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                            ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                        </div>
+                        <div class="message sent">
+                            <img src="${url + 'storage/' + e.media[0]}" alt="img" width="90" height="90">
+                        </div>
+                    </div>`;
+
+                    $('.messages').append(mediaHtml);
+                } else if (e.media.length === 2) {
+                    let mediaHtml = `
+                    <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
+                        <div class="receiver_image_and_name">
+                            <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                            ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                        </div>`;
+                    e.media.forEach(image => {
+                        mediaHtml += `
+                            <div class="message sent">
+                                <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
+                            </div>`;
                     });
-                }
-            });
-        }
 
-        if (e.message_type === 'media') {
-            if (e.media.length === 1) {
-                const mediaHtml = `
-                <div class="message received position-relative" style="margin-top: 50px;  display: flex; flex-wrap: wrap">
+                    mediaHtml += `</div>`;
+
+                    $('.messages').append(mediaHtml);
+                }
+                else if (e.media.length === 4) {
+                    let mediaHtml = `
+                    <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
+                        <div class="receiver_image_and_name">
+                            <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                            ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                        </div>`;
+                    e.media.forEach(image => {
+                        mediaHtml += `
+                        <div class="message sent">
+                            <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
+                        </div>`;
+                    });
+
+                    mediaHtml += `</div>`;
+
+                    $('.messages').append(mediaHtml);
+                }
+                else {
+                    e.media.forEach(item => {
+                        const mediaHtml = `
+                        <div class="message received position-relative" style="margin-top: 50px">
+                            <div class="receiver_image_and_name">
+                                <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                                ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                            </div>
+                            <div class="message sent">
+                                <img src="${url + 'storage/' + item}" alt="img" width="90" height="90">
+                            </div>
+                        </div>`;
+
+                        $('.messages').append(mediaHtml);
+                    })
+
+                }
+                
+            }
+
+            if (e.message_type === "message_with_media") {
+                const message_with_media_html = `
+                <div class="message received position-relative" style="margin-top: 50px">
                     <div class="receiver_image_and_name">
                         <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
@@ -90,83 +202,38 @@ window.Echo.private(`chat-channel.${userId}`)
                     <div class="message sent">
                         <img src="${url + 'storage/' + e.media[0]}" alt="img" width="90" height="90">
                     </div>
+                    ${e.message}
                 </div>`;
-
-                $('.messages').append(mediaHtml);
-            } else if (e.media.length === 2) {
-                let mediaHtml = `
-                <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
-                    <div class="receiver_image_and_name">
-                        <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
-                        ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                    </div>`;
-                e.media.forEach(image => {
-                    mediaHtml += `
-                        <div class="message sent">
-                            <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
-                        </div>`;
-                });
-
-                mediaHtml += `</div>`;
-
-                $('.messages').append(mediaHtml);
+                
+                $('.messages').append(message_with_media_html);
             }
-            else if (e.media.length === 4) {
-                let mediaHtml = `
-                <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
-                    <div class="receiver_image_and_name">
-                        <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
-                        ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                    </div>`;
-                e.media.forEach(image => {
-                    mediaHtml += `
-                    <div class="message sent">
-                        <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
-                    </div>`;
-                });
-
-                mediaHtml += `</div>`;
-
-                $('.messages').append(mediaHtml);
-            }
-            else {
-                e.media.forEach(item => {
-                    const mediaHtml = `
-                    <div class="message received position-relative" style="margin-top: 50px">
-                        <div class="receiver_image_and_name">
-                            <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
-                            ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                        </div>
-                        <div class="message sent">
-                            <img src="${url + 'storage/' + item}" alt="img" width="90" height="90">
-                        </div>
-                    </div>`;
-
-                    $('.messages').append(mediaHtml);
-                })
-
-            }
-            showNotiIncomeMessage(e, 'send you media')
+            $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
         }
-
-        if (e.message_type === "message_with_media") {
-            const message_with_media_html = `
-            <div class="message received position-relative" style="margin-top: 50px">
-                <div class="receiver_image_and_name">
-                    <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
-                    ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                </div>
-                <div class="message sent">
-                    <img src="${url + 'storage/' + e.media[0]}" alt="img" width="90" height="90">
-                </div>
-                ${e.message}
-            </div>`;
-            showNotiIncomeMessage(e, 'send you message with media')
-            $('.messages').append(message_with_media_html);
+        if(!parent_conservation.hasClass('active-conversation')) {
+            if(e.message_count > 0) {
+                parent_conservation.find('.noti_counter__conservation').text(e.message_count)
+            }else if(e.message_count === 0) {
+                parent_conservation.find('.noti_counter__conservation').text('')
+            }
         }
 
 
-        $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
+        switch (e.message_type) {
+            case 'message':
+                showNotiIncomeMessage(e, 'send you the message')
+                break;
+            case 'audio':
+                showNotiIncomeMessage(e, 'send you the voice message')
+                break;
+            case 'message':
+                showNotiIncomeMessage(e, 'send you media')
+                break;
+            case 'message':
+                showNotiIncomeMessage(e, 'send you message with media')
+                break;
+            default:
+                break;
+        }
         // toastr.success(`<strong>${e.userName}</strong>: ${e.message}`);
     })
     .listen('.notification-counter', (e) => {
@@ -212,7 +279,25 @@ window.Echo.private(`chat-channel.${userId}`)
     })
     .listen('.unfriend', (e) => {
         $('#user-id-' + e.id).html('<b>You can\'t send message because your friend unfriend you </b>');
-    });
+    })
+    .listen('.seen-all-message', (e) => {
+        console.log(e)
+
+        let allSentMessages = $('.messages').find('.message.sent');
+        allSentMessages.find('.ticks--div').html('');
+        
+        let lastMessage = $('.messages').find('.message.sent:last')
+        lastMessage.find('.ticks--div').html(`
+            <img src="${ e?.receiverImage }" height="15px" width="15px" class="rounded-circle" alt="">
+            `);
+    })
+
+
+    // Window.Echo.private(`typing.${userId}`)
+    //     .listenForWhisper('typing', (e) => {
+    //         console.log(e)
+    //         console.log(`User is typing...`);
+    //     })
 
     function showNotiIncomeMessage(e, text) {
         var audio = new Audio('/ringtone/noty.wav');
@@ -315,43 +400,12 @@ function updateOnlineStatus(users) {
     localStorage.setItem('online-users', JSON.stringify(onlineUsers))
 }
 
-let typingTimeout = null;
-let isTyping = false;
-$('body').on('keydown', '.message-value', function() {
-    const receiverId = $('#message-input').data('receiver-id') 
-    console.log(receiverId)// Receiver ID
-    // Clear previous timeout
-    if (isTyping) {
-        clearTimeout(typingTimeout);
-    }
-
-    // Set typing state
-    isTyping = true;
-
-    // Debounce: 500ms ke baad event broadcast karo
-    typingTimeout = setTimeout(function () {
-        // Broadcast typing event to Pusher channel
-        window.Echo.private(`typing.${receiverId}`)
-            .whisper('typing', {
-                sender_id: userId,
-            });
-
-        // Reset typing state after 2 seconds of inactivity
-        typingTimeout = setTimeout(function () {
-            isTyping = false;
-            window.Echo.private(`typing.${receiverId}`)
-                .whisper('stop-typing', {
-                    sender_id: userId,
-                });
-        }, 2000);
-    }, 500);
-});
 console.log(userId)
 // Listen for typing events
-window.Echo.private(`typing.${userId}`)
-    .listenForWhisper('typing', function (event) {
-        console.log(`User ${event.sender_id} is typing...`);
-    })
-    .listenForWhisper('stop-typing', function (event) {
-        console.log('inside stope-typing')
-    });
+// window.Echo.private(`typing.${userId}`)
+//     .listenForWhisper('typing', function (event) {
+//         console.log(`User ${event.sender_id} is typing...`);
+//     })
+//     .listenForWhisper('stop-typing', function (event) {
+//         console.log('inside stope-typing')
+//     });

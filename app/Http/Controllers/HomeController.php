@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ChatEvent;
 use App\Models\User;
+use App\Models\Message;
+use App\Events\ChatEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +36,17 @@ class HomeController extends Controller
             });
         })->get();
         // $friends = User::where('id','!=' ,authUserId())->get();
+        $friends = $friends->map(function($friend) {
+            $message = Message::where(function($query) use ($friend) {
+                $query->where('sender_id', authUserId())->where('receiver_id', $friend->id);
+            })->orWhere(function($query) use ($friend) {
+                $query->where('sender_id', $friend->id)->where('receiver_id', authUserId());
+            })->latest()->first()?->toArray() ?? [];
+            $friend->last_message = $message;
+            return $friend;
+        });
+
+        // dd($friends->toArray());
 
         return view('home', compact('friends'));
     }
