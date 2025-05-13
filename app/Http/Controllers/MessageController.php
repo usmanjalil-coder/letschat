@@ -32,6 +32,7 @@ class MessageController extends Controller
         // dd($request->all());
         try {
             $images = [];
+            $videos = [];
 
             $message_type = '';
             $createdMessageId= null;
@@ -42,17 +43,41 @@ class MessageController extends Controller
             if ($request->has('images')) {
                 $message_type = 'media';
             }
-            if (isset($request['message']) && $request['message'] !== null && $request->has('images')) {
+            if ($request->has('videos')) {
+                $message_type = 'video';
+            }
+            if (isset($request['message']) && 
+                    $request['message'] !== null && 
+                (
+                    $request->has('images') || $request->has('videos')
+                )
+            ) {
                 $message_type = 'message_with_media';
+            }
+
+            if(
+                $request->has('images') && !is_null($request['images']) &&
+                $request->has('videos') && !is_null($request['videos'])
+            )
+            {
+                $message_type = 'image_with_video';
             }
 
             if ($request->has('images')) {
 
                 foreach ($request->file('images') as $file) {
                     $path = $file->store('media', 'public');
-                    Log::info('images store path: ' . $path);
 
                     $images[] = $path;
+                }
+            }
+
+            if ($request->has('videos')) {
+
+                foreach ($request->file('videos') as $file) {
+                    $path = $file->store('media', 'public');
+
+                    $videos[] = $path;
                 }
             }
 
@@ -84,6 +109,7 @@ class MessageController extends Controller
                     'receiver_id' => $request['receiver_id'],
                     'message' => $request['message'],
                     'images' => json_encode($images),
+                    'videos' => json_encode($videos),
                     'message_type' => $message_type
                 ]);
                 $createdMessageId = $message->id;
@@ -96,6 +122,8 @@ class MessageController extends Controller
             $renderImage = Auth::user()->image;
             $createdAt = now();
             $media = count($images) ? $images : null;
+            $video = count($videos) ? $videos : null;
+
             $this->post_notification([
                 'to_user_id' => $request['receiver_id'],
                 'from_user_id' => authUserId(),
@@ -107,7 +135,7 @@ class MessageController extends Controller
             broadcast(new ChatEvent(
                 $request['receiver_id'], $request['message'], $name,
                 $renderImage, $createdAt, $message_type,
-                $media, $filePath ?? null, authUserId(), $message_count
+                $media, $filePath ?? null, authUserId(), $message_count,$video
             ));
             // broadcast(new MessageDeliveredEvent($createdMessageId, $request['receiver_id']));
             return response()->json([

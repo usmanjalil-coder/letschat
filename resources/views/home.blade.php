@@ -51,6 +51,23 @@
                                             </svg>
                                             <span class="mt-1">Media</span>
                                             @break
+                                        @case('videos')
+                                            <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -3px" width="14" height="14" fill="gray" class="bi bi-image" viewBox="0 0 16 16">
+                                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                                            </svg>
+                                            <span class="mt-1">Video</span>
+                                            @break
+                                        @case('message_with_media')
+                                            @php
+                                                $message = $friend['last_message']['message'];
+                                            @endphp
+                                            <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -3px" width="14" height="14" fill="gray" class="bi bi-image" viewBox="0 0 16 16">
+                                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                                            </svg>
+                                            {{ strlen($message) > 25 ? substr($message,0,23) .'...' : $message }}
+                                            @break
                                         @case('audio')
                                             <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -3px" width="14" height="14" fill="gray" class="bi bi-mic" viewBox="0 0 16 16">
                                                 <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5"/>
@@ -89,7 +106,7 @@
             {{-- <div class="rcvr-data text-center d-none" style=" position: absolute; left: 47%;  top: -39px; ">
             <img class="rounded-circle" src="{{ asset('images/person.jpg') }}" alt="" height="70px" width="70px">
             <p>usman</p>
-        </div> --}}
+            </div> --}}
             <div class="starter-text">
                 <h3 class="h2">Hello , {{ ucfirst(auth()->user()->name) }}☺️</h3>
                 <p>Let's start new chat.... </p>
@@ -127,7 +144,7 @@
                 </label>
 
                 {{-- for media  --}}
-                <input hidden type="file" id="chat-image" accept="image/*" multiple>
+                <input hidden type="file" id="chat-image" accept="image/*, video/*" multiple>
                 <label for="chat-image" class="" style="padding: 10px 9px 0px 11px; cursor: pointer;">
                     <i class="bi bi-camera h5"></i>
                 </label>

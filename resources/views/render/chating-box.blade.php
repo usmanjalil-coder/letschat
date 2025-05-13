@@ -142,9 +142,45 @@
                     @endif
                 @endif
 
+                @if ($message['message_type'] === 'video' && !is_null($message['videos']))
+                    @php
+                        $videos = json_decode($message['videos'], true);
+                    @endphp
+                    @foreach ($videos as $key => $video)
+                        <div class="message sent position-relative" style="{{ $loop->first ? 'margin-top:40px' : '' }}">
+                            <video width="220" height="220" controls>
+                                <source src="{{ asset('storage') .'/'. $video}}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="sender_message_time">
+                                {{ $message['created_at'] }}
+                            </div>
+                            <div class="ticks--div">
+                                {{-- @if ($loop->last) --}}
+                                    @if ($message['status'] === 'sent')
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6464fa" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                        </svg>
+                                    @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
+                                        <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                    @endif
+                                {{-- @endif --}}
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+
                 @if ($message['message_type'] === 'message_with_media')
+                {{-- @dd($message['videos']); --}}
                     <div class="message sent position-relative" style="{{ $loop->first ? 'margin-top:40px' : '' }}">
-                        <img class="view_media_image" src="{{ asset('storage') .'/'. $msg[0]}}" alt="img" width="120" height="120">
+                        @if(!empty(json_decode($message['videos'], true)) && str_contains(json_decode($message['videos'], true)[0], '.mp4')) 
+                            <video width="220" height="220" controls>
+                                <source src="{{ asset('storage') .'/'. json_decode($message['videos'], true)[0]}}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        @else
+                            <img class="view_media_image" src="{{ asset('storage') .'/'. json_decode($message['images'], true)[0]}}" alt="img" width="120" height="120">
+                        @endif
                         <p class="m-0 p-0">{{ $message['message'] }}</p>
                         <div class="sender_message_time">
                             {{ $message['created_at'] }}
@@ -215,7 +251,22 @@
                         </div>
                         {{ $message['message'] }}
                     </div> --}}
-
+                @elseif ($message['message_type'] === 'video' && !is_null($message['videos']))
+                    @php
+                        $videos = json_decode($message['videos'], true);
+                    @endphp
+                    @foreach ($videos as $key => $video)
+                        <div class="message received position-relative" style="margin-top: 50px">
+                            <div class="receiver_image_and_name">
+                                <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                                {{ $message['sender']['name'] }} , <small>{{ $message['created_at'] }}</small>
+                            </div>
+                            <video width="220" height="220" controls>
+                                <source src="{{ asset('storage') .'/'. $video}}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                     @endforeach
                 @elseif ($message['message_type'] === 'media')
                     @php
                         $msg_r = json_decode($message['images'], true);

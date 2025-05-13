@@ -80,6 +80,10 @@ function seenMessage(receiver__id) {
 
 window.Echo.private(`chat-channel.${userId}`)
     .listen('.chat-event', (e) => {
+        console.log(e);
+        // return;
+
+        
         // console.log($(`#conservation-${e.sender}`).hasClass('active-conversation'))
         let parent_conservation = $(`#conservation-${e.sender}`)
         if(parent_conservation.hasClass('active-conversation')){
@@ -104,12 +108,10 @@ window.Echo.private(`chat-channel.${userId}`)
                         <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                     </div>
-                    <div class="message sent">
-                        <audio class="js-player" controls>
-                            <source src="${url + 'storage/' + e.audioUrl}" type="audio/wav">
-                            Your browser does not support the audio element.
-                        </audio>
-                    </div>
+                    <audio class="js-player" controls>
+                        <source src="${url + 'storage/' + e.audioUrl}" type="audio/wav">
+                        Your browser does not support the audio element.
+                    </audio>
                 </div>`;
                 
                 $('.messages').append(mediaHtml);
@@ -125,28 +127,26 @@ window.Echo.private(`chat-channel.${userId}`)
             if (e.message_type === 'media') {
                 if (e.media.length === 1) {
                     const mediaHtml = `
-                    <div class="message received position-relative" style="margin-top: 50px;  display: flex; flex-wrap: wrap">
+                    <div class="message received position-relative" style="margin-top: 50px">
                         <div class="receiver_image_and_name">
                             <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                             ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                         </div>
-                        <div class="message sent">
-                            <img src="${url + 'storage/' + e.media[0]}" alt="img" width="90" height="90">
-                        </div>
+                        <img class="view_media_image" src="${url + 'storage/' + e.media[0]}" alt="img" width="120" height="120">
                     </div>`;
 
                     $('.messages').append(mediaHtml);
                 } else if (e.media.length === 2) {
                     let mediaHtml = `
                     <div class="message received position-relative" style="margin-top: 50px; width: 240px; display: flex; flex-wrap: wrap">
-                        <div class="receiver_image_and_name">
+                        <div>
                             <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                             ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                         </div>`;
                     e.media.forEach(image => {
                         mediaHtml += `
-                            <div class="message sent">
-                                <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
+                            <div class="mx-1 my-1">
+                                <img class="view_media_image" src="${url + 'storage/' + image}" alt="img" width="100" height="100">
                             </div>`;
                     });
 
@@ -163,8 +163,8 @@ window.Echo.private(`chat-channel.${userId}`)
                         </div>`;
                     e.media.forEach(image => {
                         mediaHtml += `
-                        <div class="message sent">
-                            <img src="${url + 'storage/' + image}" alt="img" width="90" height="90">
+                        <div class="my-1 mx-1">
+                            <img class="view_media_image" src="${url + 'storage/' + image}" alt="img" width="100" height="100">
                         </div>`;
                     });
 
@@ -180,9 +180,7 @@ window.Echo.private(`chat-channel.${userId}`)
                                 <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                                 ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                             </div>
-                            <div class="message sent">
-                                <img src="${url + 'storage/' + item}" alt="img" width="90" height="90">
-                            </div>
+                            <img class="view_media_image" src="${url + 'storage/' + item}" alt="img" width="120" height="120">
                         </div>`;
 
                         $('.messages').append(mediaHtml);
@@ -199,13 +197,28 @@ window.Echo.private(`chat-channel.${userId}`)
                         <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
                         ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                     </div>
-                    <div class="message sent">
-                        <img src="${url + 'storage/' + e.media[0]}" alt="img" width="90" height="90">
-                    </div>
-                    ${e.message}
+                    <img src="${url + 'storage/' + e.media[0]}" alt="img" width="120" height="120">
+                    <p class="m-0">${e.message}</p>
                 </div>`;
                 
                 $('.messages').append(message_with_media_html);
+            }
+            if(e.message_type === "video") {
+                e.video.forEach(item => {
+                    const mediaHtml = `
+                    <div class="message received position-relative" style="margin-top: 50px">
+                        <div class="receiver_image_and_name">
+                            <img src="${e.renderImage ? 'storage/' + e.renderImage : 'images/person.jpg'}" class="rounded-circle" height="30px" width="30px" alt="receiver">
+                            ${e.userName}, <small>${new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                        </div>
+                        <video width="220" height="220" controls>
+                            <source src="${url + 'storage/' + item}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>`;
+
+                    $('.messages').append(mediaHtml);
+                })
             }
             $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
         }

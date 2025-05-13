@@ -10,7 +10,7 @@ body {
 }
 
 .conversation-list {
-    width: 300px;
+    width: 275px;
     border-right: 1px solid #ccc;
     background: #edecec;
     overflow-y: auto;
@@ -192,6 +192,7 @@ body {
 }
 .view_media_image{
     cursor: pointer;
+    border-radius: 9%;
 }
 
 /* sekeleton */
@@ -375,3 +376,15 @@ body {
     color: white !important;
     margin-right: 4px;
   }
+
+  .fade-out {
+    opacity: 0;
+    display: none;
+    transition: opacity 0.5s ease, display 0.5s ease;
+}
+
+.fade-in {
+    opacity: 1;
+    display: visible;
+    transition: opacity 0.5s ease, display 0.5s ease;
+}

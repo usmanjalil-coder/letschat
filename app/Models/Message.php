@@ -16,6 +16,7 @@ class Message extends Model
         'receiver_id',
         'message',
         'images',
+        'videos',
         'message_type',
         'audio_file_name',
         'audio_file_path'

@@ -111,7 +111,7 @@ if(!function_exists('getLastSeen')) {
             if ($time->year < 1900 || $time->year > now()->year + 1) {
                 return null;
             } else {
-                if ($minutes < 1) return $minutes.'Just now';
+                if ($minutes < 1) return number_format($minutes).'Just now';
                 elseif ($minutes > 1 && $minutes < 60) return number_format($minutes).'m ago';
                 elseif ($hours > 1 && $hours < 24) return number_format($hours).'h ago';
                 elseif ($diffInDays > 1 && $diffInDay < 2) {

@@ -145,11 +145,33 @@ $(document).ready(function () {
         formData.append("receiver_id", receiver_id);
 
         if ($('.img-container').children().length > 0) {
-            $('.img-container .img-div img').each(function () {
-                let imgSrc = $(this).attr('src');
+            $('.img-container .img-div .render__media').each(function () {
+                let mediaSrc;
+
+                if ($(this).is('img')) {
+                    mediaSrc = $(this).attr('src');
+                } else if ($(this).is('video')) {
+                    mediaSrc = $(this).find('source').attr('src');
+                }
+                
+                let image = ` <img class="view_media_image" src="${mediaSrc}" alt="img" width="120" height="120">`
+
+                let video = `<video width="220" height="220" controls>
+                                <source src="${mediaSrc}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>`
+
                 $('.messages').append(
                     `<div class="message sent position-relative">
-                        <img src="${imgSrc}" alt="img" width="90" height="90">
+                        ${
+                            mediaSrc.startsWith('data:image') 
+                            ? image : 
+                            (
+                                mediaSrc.startsWith('data:video') 
+                                ? video : ''
+                            )
+                        }
+                       
                         <p class="m-0 p-0">${message === '' ? '' : message}</p>
                          <div class="sender_message_time"> just now </div>
                          <div class="ticks--div" style="bottom: -17px;">
@@ -159,13 +181,25 @@ $(document).ready(function () {
                         </div>
                     </div>`
                 );
-                let blobBin = atob(imgSrc.split(',')[1]);
+                let mimeType = ''
+                mediaSrc.startsWith("data:image") 
+                        ? mimeType = 'image/jpeg' : 
+                        (
+                            mediaSrc.startsWith("data:video")
+                            ? mimeType= 'video/mp4': ''
+                        )
+
+                let blobBin = atob(mediaSrc.split(',')[1]);
                 let array = [];
                 for (let i = 0; i < blobBin.length; i++) {
                     array.push(blobBin.charCodeAt(i));
                 }
-                let file = new Blob([new Uint8Array(array)], { type: 'image/jpeg' });
-                formData.append('images[]', file, `image-${Date.now()}.jpg`);
+                let file = new Blob([new Uint8Array(array)], { type: mimeType });
+                if(mimeType === 'image/jpeg'){
+                    formData.append('images[]', file, `image-${Date.now()}.jpg`);
+                }else if(mimeType === 'video/mp4') {
+                    formData.append('videos[]', file, `video-${Date.now()}.mp4`);
+                }
             });
             if(parent.hasClass('active-conversation')) 
                 parent.find('#conservaion__short_message_type').html(`
@@ -382,6 +416,8 @@ $("#chat-image").on('change', function (e) {
     let files = Array.from(e.target.files);
     $('.messages').css('height', '60vh');
     $('.messages').animate({ scrollTop: $('.messages')[0].scrollHeight }, 300);
+    console.log(files);
+    
     files.forEach(file => {
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
@@ -389,14 +425,30 @@ $("#chat-image").on('change', function (e) {
                 // console.log(e.target.result)
                 let img = `<div class="img-div mx-3 position-relative">
                                     <i class="bi bi-x delete-image"></i>
-                                    <img src="${e.target.result}" alt="img" width="90" height="90">
+                                    <img class="render__media" src="${e.target.result}" alt="img" width="90" height="90">
                                 </div> `;
                 $('.img-container').append(img);
 
             }
             reader.readAsDataURL(file);
             $(this).val('');
-        } else {
+        }else if(file && file.type.startsWith('video/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let vid = `
+                <div class="img-div mx-3 position-relative">
+                    <i class="bi bi-x delete-image" style="z-index: 99;"></i>
+                    <video class="render__media" width="90" height="90" controls>
+                        <source src="${e.target.result}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div> `;
+                $('.img-container').append(vid);
+            }
+            reader.readAsDataURL(file);
+            $(this).val('');
+        }
+        else {
             console.log("Please select the image");
         }
     })
