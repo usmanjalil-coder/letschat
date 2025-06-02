@@ -15,8 +15,10 @@ if (!function_exists('authUserId')) {
 if (!function_exists('toLocalTimeZone')) {
     function toLocalTimeZone($date)
     {
-        $date = Carbon::parse($date)->timezone('Asia/Karachi');
-        return $date->diffForHumans();
+        if($date) {
+            $date = Carbon::parse($date)->timezone('Asia/Karachi');
+            return $date->diffForHumans();
+        }
     }
 }
 if (!function_exists('getNotificationCounter')) {
@@ -35,19 +37,20 @@ if (!function_exists('getNotificationCounter')) {
 if (!function_exists('getLocalTimeZoneForMessages')) {
     function getLocalTimeZoneForMessages($dt)
     {
-        $time = Carbon::parse($dt)->timezone('Asia/Karachi');
-        if ($time->diffInMinutes() < 60) {
-            $timeIs = $time->diffForHumans();
-        } else {
-            if ($time->isToday()) {
-                $timeIs = 'Today at' . $time->format('h:i A');
-            } else if ($time->isYesterday()) {
-                $timeIs = 'Yesterday at' . $time->format('h:i');
+        if(!!$dt)
+            $time = Carbon::parse($dt)->timezone('Asia/Karachi');
+            if ($time->diffInMinutes() < 60) {
+                $timeIs = $time->diffForHumans();
             } else {
-                $timeIs = $time->format('h:i');
+                if ($time->isToday()) {
+                    $timeIs = 'Today at' . $time->format('h:i A');
+                } else if ($time->isYesterday()) {
+                    $timeIs = 'Yesterday at' . $time->format('h:i');
+                } else {
+                    $timeIs = $time->format('h:i');
+                }
             }
-        }
-        return $timeIs;
+            return $timeIs;
     }
 
 }
@@ -140,5 +143,13 @@ if(!function_exists('getNotificationCounterForBroad')) {
     function getNotificationCounterForBroad($friend_id) 
     {
         return Message::where('sender_id', authUserId())->where('receiver_id', $friend_id)->where('status', 'sent')->count();
+    }
+}
+
+if(!function_exists('getUserProfilePic'))
+{
+    function getUserProfilePic($user)
+    {
+        return isset($user->image) ? asset('storage/' . $user->image) : asset('images/person.jpg');
     }
 }

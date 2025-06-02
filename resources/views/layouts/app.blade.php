@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/emojionearea.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    @yield('style')
 
     <style>
         .message audio {
@@ -45,11 +46,32 @@
         @include('modals.add_friend_modal')
         @include('modals.friend_request_modal')
 
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
+                @auth
+                    <a class="navbar-brand" href="javascript:void(0)">
+                        {{ Auth::user()?->name }}
+                    </a>
+
+                    <a class="mx-2" style="color: {{ request()->routeIs('home') ? 'white' : 'gray' }}"
+                        href="{{ route('home') }}">
+                        {{ __('Home') }}
+                    </a>
+                    <a href="{{ route('user.profile') }}"
+                        style="color: {{ request()->routeIs('user.profile') ? 'white' : 'gray' }}" class="mx-2">
+                        Profile
+                    </a>
+                    <a class="btn btn-sm btn-danger mx-2" href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                                        document.getElementById('logout-form').submit();">
+                        {{ __('Logout') }}
+                    </a>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+
+                @endauth
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -78,24 +100,14 @@
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
+                            {{-- <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
                                 </a>
 
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
+                            </li> --}}
                         @endguest
                     </ul>
                 </div>
@@ -103,8 +115,10 @@
 
                     <div>
                         <button type="button" class="btn  position-relative" style="margin-right: 30px" id="request-list">
-                            <i class="bi bi-people text-dark"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-light" id="notification_counter">
+                            <i class="bi bi-people text-light"></i>
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-light"
+                                id="notification_counter">
                                 {{ getNotificationCounter() }}
                             </span>
                         </button>
@@ -125,6 +139,9 @@
     <!-- jQuery -->
     {{-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> --}}
     <script src="{{ asset('assets/jquery.min.js') }}"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
+    </script> --}}
     {{-- <script src="https://unpkg.com/@zegocloud/zego-im-sdk/zego-im-sdk.js"></script> --}}
 
     <script src="https://unpkg.com/zego-zim-web@2.16.0/index.js"></script>
@@ -132,6 +149,7 @@
 
     <script src="{{ asset('assets/emojionearea.min.js') }}"></script>
     @vite(['resources/js/app.js'])
+    @yield('script')
     {{-- <script src="{{ asset('js/app.js') }}" defer></script> --}}
     <script src="{{ asset('assets/message.js') }}"></script>
     <script src="{{ asset('assets/zego.js') }}"></script>

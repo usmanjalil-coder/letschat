@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RecordingController;
+use App\Http\Controllers\UserProfileController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -27,6 +28,10 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/fetch-friend-request', [MessageController::class,'getFriendRequestNotification'])->name('fetch.friend.request');
     Route::get('/request-accept-reject', [MessageController::class,'requestAcceptedOrRejected'])->name('request.accept.or.reject');
     Route::post('/is-typing', [MessageController::class,'isTyping'])->name('is.typing');
+
+    Route::get('/user/profile', UserProfileController::class)->name('user.profile');
+    Route::post('/change-password', [UserProfileController::class, 'changePassword'])->name('change.password');
+    Route::post('/update-profile', [UserProfileController::class, 'updateProfilePic'])->name('update.profile.pic');
 
     Route::post('/mark-as-seen',function(Request $request) {
         // dd($request->all());

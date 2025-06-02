@@ -62,8 +62,9 @@
                         </div>
 
                         <div class="row mb-3">
+                            <label for="file" class="col-md-4 col-form-label text-md-end">{{ __('Profile Picture') }}</label>
                             <div class="col-md-6">
-                                <input type="file" class="form-control" name="image" >
+                                <input type="file" class="form-control" name="image" id="file">
                             </div>
                         </div>
 
