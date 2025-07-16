@@ -13,7 +13,7 @@
         .card {
             max-width: 500px;
             margin: auto;
-            margin-top: 50px;
+            /* margin-top: 50px; */
         }
 
         .image_box {
@@ -84,6 +84,22 @@
                     <button class="btn btn-sm btn-primary change_pass_btn">Change password</button>
                 </p>
             </div>
+            @if(isset(auth()->user()->geo_ip_info) && !empty(auth()->user()->geo_ip_info)) 
+                <hr>
+                <h5 class="text-center ps-3">Location Info</h5>
+                @php
+                    $geoData = auth()->user()->geo_ip_info ?? null;
+                    $geo = json_decode($geoData, true);
+                @endphp
+                <div class="ps-3 pe-3 text-center">
+                    <p><strong>Country:</strong> {{ $geo['country'] ?? 'N/A' }}</p>
+                    <p><strong>City:</strong> {{ $geo['city'] ?? 'N/A' }}</p>
+                    <p><strong>State:</strong> {{ $geo['state_name'] ?? 'N/A' }}</p>
+                    <p><strong>Timezone:</strong> {{ $geo['timezone'] ?? 'N/A' }}</p>
+                    <p><strong>Latitude:</strong> {{ $geo['lat'] ?? 'N/A' }}</p>
+                    <p><strong>Longitude:</strong> {{ $geo['lon'] ?? 'N/A' }}</p>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

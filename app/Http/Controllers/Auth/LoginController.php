@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
@@ -37,4 +39,16 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
+    protected function authenticated(Request $request, $user)
+    {
+        saveUserGeoIpData($user);
+    }
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        toastr()->error('These credentials do not match our records.');
+        session()->put('auth.fail.errors', true);
+        return redirect()->back();
+    }
+    
 }

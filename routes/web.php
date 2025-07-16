@@ -16,7 +16,9 @@ use App\Http\Controllers\UserProfileController;
 //     return view('welcome');
 // });
 
-Auth::routes();
+// Route::group(['middleware' => ['web']], function () {
+    Auth::routes();
+// });
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

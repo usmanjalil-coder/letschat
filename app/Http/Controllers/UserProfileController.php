@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class UserProfileController extends Controller
 {
@@ -22,7 +23,9 @@ class UserProfileController extends Controller
         ]);
 
         if(!Hash::check($validated['old_password'], auth()->user()->password)) {
-            return $this->error("Provided old password does not match!", 404);
+            throw ValidationException::withMessages([
+                'old_password' => 'Provided old password does not match!'
+            ]);
         }
 
         $user = auth()->user();

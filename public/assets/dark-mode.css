@@ -1,0 +1,168 @@
+html {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+img {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.img {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.inline_post_emoji {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.user-card-cover {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+._js_palsome_post-text {
+    filter: invert(1) hue-rotate(180deg);
+    color: white !important;
+}
+
+.js_palsome_map {
+    filter: invert(1) hue-rotate(180deg);
+    color: white !important;
+}
+
+.js_comment_text {
+    filter: invert(1) hue-rotate(180deg);
+    color: white !important;
+    background-color: revert !important;
+}
+
+.responsive-container {
+    background-color: white;
+}
+
+.carousel-inner {
+    background-color: white;
+}
+
+
+
+.plyr__poster {
+    filter: invert(1) hue-rotate(180deg);
+
+}
+
+video {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.reaction {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.post-title {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+
+.responsive-container .more svg {
+    fill: white !important;
+    z-index: 1;
+}
+
+.btn-control {
+    background-color: white !important;
+}
+
+
+
+.tooltip-inner {
+    background-color: white !important;
+    color: #fff;
+}
+
+a {
+    color: black !important;
+}
+
+a:hover {
+    color: var(--palsome-color-primary) !important;
+
+}
+
+h6 {
+    color: black !important;
+}
+
+div {
+    color: black !important;
+}
+
+svg {
+    fill: black;
+}
+
+.palsome_create_modal_style>svg {
+    fill: black !important;
+}
+
+textarea {
+    color: black !important;
+}
+
+.logout-icon {
+    background-color: #fff !important;
+}
+
+.logout-icon>.fa {
+    color: var(--palsome-color-primary) !important;
+}
+
+.logout-icon>.fas {
+    color: var(--palsome-color-primary) !important;
+}
+
+.fa-play {
+    color: black !important;
+}
+
+.badge {
+    z-index: 1;
+    color: black !important;
+}
+
+.js_palsome_story_reel .nav-tabs .nav-link.active {
+    color: var(--palsome-color-primary) !important;
+}
+
+
+.stretched-link>.fa {
+    color: var(--palsome-color-primary) !important;
+}
+
+label {
+    color: black !important;
+}
+
+/* #site-header {
+    background-color: var(--palsome-color-primary) !important;
+} */
+
+/* #_palsome_advance-search {
+    background-color: white !important;
+} */
+
+
+span {
+    color: black !important;
+}
+
+._js_search_item .fa-search {
+    color: black !important;
+}
+
+.palsome_room_create_header_icon:not(:hover) {
+    fill: black !important;
+}
+
+.palsome_room_create_header_icon:hover {
+    fill: var(--palsome-color-primary) !important;
+    stroke: var(--palsome-color-primary) !important;
+}

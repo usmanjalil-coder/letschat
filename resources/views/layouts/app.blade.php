@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/emojionearea.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('assets/dark-mode.css') }}"> --}}
     @yield('style')
 
     <style>
@@ -32,6 +33,7 @@
             width: 100% !important;
             height: 40px !important;
         }
+
     </style>
 
     <!-- Scripts -->

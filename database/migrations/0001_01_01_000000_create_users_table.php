@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('image')->nullable();
             $table->timestamp('last_seen')->nullable();
+            $table->json('geo_ip_info')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

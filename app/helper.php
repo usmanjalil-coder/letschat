@@ -153,3 +153,27 @@ if(!function_exists('getUserProfilePic'))
         return isset($user->image) ? asset('storage/' . $user->image) : asset('images/person.jpg');
     }
 }
+
+if(!function_exists('geoIpInfo')) {
+    function geoIpInfo() 
+    {
+        $prod = $_SERVER['REMOTE_ADDR'];
+        $local = file_get_contents('https://api64.ipify.org');
+        $ip = \App::environment('local') ? $local : $prod;
+        return geoip()->getLocation($ip)->toArray();
+    }
+}
+
+if(!function_exists('saveUserGeoIpData')) {
+    function saveUserGeoIpData($user = null) 
+    {
+        $geoInfo = geoIpInfo();
+        if(auth()->check() && isset($geoInfo) ) {
+            if(is_null($user)) {
+                $user = auth()->user();
+            }
+            $user->geo_ip_info = json_encode($geoInfo);
+            $user->save();
+        };
+    }
+}
