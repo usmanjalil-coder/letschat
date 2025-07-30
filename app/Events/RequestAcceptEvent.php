@@ -14,15 +14,15 @@ use Illuminate\Queue\SerializesModels;
 class RequestAcceptEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $userId;
+    public $friendId;
     public $profilePicture;
     public $name;
     /**
      * Create a new event instance.
      */
-    public function __construct($userId, $profilePicture, $name)
+    public function __construct($friendId, $profilePicture, $name, public mixed $userId)
     {
-        $this->userId = $userId;
+        $this->friendId = $friendId;
         $this->profilePicture = $profilePicture;
         $this->name = $name;
     }
@@ -35,7 +35,7 @@ class RequestAcceptEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('chat-channel.'. $this->userId),
+            new PrivateChannel('chat-channel.'. $this->friendId),
         ];
     }
 

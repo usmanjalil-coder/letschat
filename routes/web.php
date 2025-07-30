@@ -38,11 +38,12 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('/mark-as-seen',function(Request $request) {
         // dd($request->all());
         $receiverImage = \App\Models\User::whereId((int)$request->receiver_id)->select('id','image')->first()->toArray();
+        $SenderImage = \App\Models\User::whereId((int)$request->sender_id)->select('id','image')->first()->toArray();
         
         broadcast(new SeenAllMessageEvent(
             $request['receiver_id'], 
             authUserId(),
-            !is_null($receiverImage['image']) ?  asset('storage/'.$receiverImage['image']) : asset('images/person.jpg')
+            !is_null($SenderImage['image']) ?  asset('storage/'.$SenderImage['image']) : asset('images/person.jpg')
         ));
         Message::markAsSeen(authUserId(), $request->receiver_id);
         return response()->json([

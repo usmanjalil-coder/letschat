@@ -697,8 +697,10 @@ $(document).ready(function () {
                 } else {
                     showToast(res.message, 'error');
                 }
+                _this.text('Unfriend');
             },
             error: function (error) {
+                _this.text('Unfriend');
                 console.log(error);
             }
         });

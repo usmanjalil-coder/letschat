@@ -158,9 +158,9 @@ if(!function_exists('geoIpInfo')) {
     function geoIpInfo() 
     {
         $prod = $_SERVER['REMOTE_ADDR'];
-        $local = file_get_contents('https://api64.ipify.org');
-        $ip = \App::environment('local') ? $local : $prod;
-        return geoip()->getLocation($ip)->toArray();
+        // $local = file_get_contents('https://api64.ipify.org');
+        // $ip = \App::environment('local') ? $local : $prod;
+        return geoip()->getLocation($prod)->toArray();
     }
 }
 

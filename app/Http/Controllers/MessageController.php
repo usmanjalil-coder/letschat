@@ -178,7 +178,7 @@ class MessageController extends Controller
             $last_message_seen = Message::usersMessage($userId, $receiverId)->where('sender_id', $userId)->where('status', 'seen')->latest()->select('id')->first()?->toArray() ?? 0;
 
             $receiver_lastseen = User::whereId($receiverId)->value('last_seen');
-            $r['r_name'] = User::whereId($receiverId)->select('name', 'id')->first();
+            $r['r_name'] = User::whereId($receiverId)->select('name', 'id', 'image')->first();
 
             $r['last_seen'] = getLastSeen($receiver_lastseen);
 
@@ -341,7 +341,7 @@ class MessageController extends Controller
                             'friend_id' => $id
                         ]);
                         $profile_img = Auth::user()->image;
-                        broadcast(new RequestAcceptEvent($id, $profile_img, auth()->user()->name));
+                        broadcast(new RequestAcceptEvent($id, $profile_img, auth()->user()->name, auth()->id()));
                         $this->post_notification([
                             'to_user_id' => $id,
                             'from_user_id' => authUserId(),

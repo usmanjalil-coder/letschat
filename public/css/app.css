@@ -273,11 +273,17 @@ body {
 
 
 .audio-recording-ui {
-    padding: 10px;
+        padding: 10px;
     background-color: #d2d2d2;
     border-radius: 5px;
     display: flex;
     align-items: center;
+    bottom: 16px;
+    z-index: 99;
+    left: 15px;
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .rcvr-data{

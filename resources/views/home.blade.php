@@ -119,18 +119,21 @@
 
             {{-- for audio  --}}
             <div id="audio-recording-ui" class="audio-recording-ui d-none position-absolute"
-                style="bottom: 81px; left: 26px;">
+                style="">
                 <div class="recording-info d-flex align-items-center">
                     <i class="bi bi-mic h4 me-2 text-danger"></i>
                     <span id="recording_span"></span>
                 </div>
-                <button id="stop-recording-btn" class="btn btn-sm ms-3 mx-3 bg-danger text-light">
-                    <i class="bi bi-trash"></i>
-                </button>
+                <div>
 
-                <button id="send-recording-btn" class="btn btn-sm ms-3 bg-primary text-light">
-                    <i class="bi bi-send-check"></i>
-                </button>
+                    <button id="stop-recording-btn" class="btn btn-sm ms-3 mx-3 bg-danger text-light">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    
+                    <button id="send-recording-btn" class="btn btn-sm ms-3 bg-primary text-light">
+                        <i class="bi bi-send-check"></i>
+                    </button>
+                </div>
             </div>
             
             <div class="message-input d-none position-relative" data-friend-id="" id="user-id-{{ auth()?->user()?->id }}">
@@ -153,6 +156,13 @@
                 <label class="send-message-btn" id="send-btn" style="padding: 10px 9px 0px 0px; cursor: pointer;">
                     <i class="bi bi-send h5"></i>
                 </label>
+            </div>
+        </div>
+    </div>
+    <div class="container responsive-error-container" style="display: none">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="m-0">Sorry! this is not responsive, please use a screen wider than 774px.</p>
             </div>
         </div>
     </div>

@@ -62,7 +62,7 @@ function seenMessage(receiver__id) {
     $.ajax({
         url: "/mark-as-seen",
         type: "POST",
-        data: {receiver_id: receiver__id},
+        data: {receiver_id: receiver__id, sender_id : userId},
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
@@ -268,7 +268,7 @@ window.Echo.private(`chat-channel.${userId}`)
         }
     })
     .listen('.request-accept-event', (e) => {
-        console.log(e)
+        console.log('request accept event =========>>>>>>', e)
         let conservation_list = `
             <div class="conversation-item" id="conservation-${e.userId}" data-id="${e.userId}">
             <div>

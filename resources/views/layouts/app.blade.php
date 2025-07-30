@@ -33,6 +33,14 @@
             width: 100% !important;
             height: 40px !important;
         }
+        @media only screen and (max-width: 774px) {
+            .chat-container {
+                display: none;
+            }
+            .responsive-error-container {
+                display: block !important;
+            }
+        }
 
     </style>
 

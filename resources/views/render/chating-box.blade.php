@@ -3,7 +3,8 @@
 <div class="messages">
     <div class="rcvr-data text-center d-flex justify-content-between py-2">
         <div class="d-flex">
-            <img class="rounded-circle mx-2" src="{{ isset($conversations[0]['receiver']['image']) ? asset('storage') .'/'. $conversations[0]['receiver']['image'] : asset('images/person.jpg') }}" alt="" height="40px" width="40px">
+            {{-- @dd($r['r_name']) --}}
+            <img class="rounded-circle mx-2" src="{{ isset($r['r_name']['image']) ? asset('storage') .'/'. $r['r_name']['image'] : asset('images/person.jpg') }}" alt="" height="40px" width="40px">
             <div>
                 <p class="mb-0 text-left">{{ ucfirst($r['r_name']['name']) }}</p>
                 <p class="mb-0 last_seen_class" id="last-seen-{{ $r['r_name']['id'] }}" style="font-size: 12px; ">{{ $r['last_seen'] }}</p>
@@ -47,7 +48,7 @@
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                     </svg>
                                 @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                    <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                    <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                                 @endif
                             </div>
                         </div>
@@ -72,7 +73,7 @@
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                     </svg>
                                 @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                    <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                    <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                                 @endif
                             </div>
                         </div>
@@ -92,7 +93,7 @@
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                     </svg>
                                 @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                    <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                    <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                                 @endif
                             </div>
                         </div>
@@ -112,7 +113,7 @@
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                     </svg>
                                 @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                    <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                    <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                                 @endif
                             </div>
                         </div>
@@ -133,7 +134,7 @@
                                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                             </svg>
                                         @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                            <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                            <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                                         @endif
                                     @endif
                                 </div>
@@ -162,7 +163,7 @@
                                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                         </svg>
                                     @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                        <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                        <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                                     @endif
                                 {{-- @endif --}}
                             </div>
@@ -192,7 +193,7 @@
                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                 </svg>
                             @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                             @endif
                         </div>
                     </div>
@@ -213,7 +214,7 @@
                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                 </svg>
                             @elseif($message['status'] === 'seen' && $message['id'] === $last_message_seen['id'])
-                                <img src="{{ isset($message['sender']['image']) ? asset('storage').'/'. $message['sender']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
+                                <img src="{{ isset($r['r_name']['image']) ? asset('storage').'/'. $r['r_name']['image'] : asset('images/person.jpg')}}" height="15px" width="15px" class="rounded-circle" alt="">
                             @endif
                         </div>
                     </div>
