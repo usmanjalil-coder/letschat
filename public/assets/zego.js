@@ -16,8 +16,8 @@ $(document).ready(function () {
         const roomID = Math.floor(Math.random() * 10000) + '-' + receiverId;
         const userID = user_ID;
         const userName = username.toLowerCase().replace(/\s+/g, '') + user_ID;
-        const appID = 43410637;
-        const serverSecret = "c72daa980a6bb015e82773f39575c3f7";
+        const appID = 1387905384;
+        const serverSecret = "2e05b373707491eea63e195d1755ec47";
         const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
     
         const zp = ZegoUIKitPrebuilt.create(kitToken);
